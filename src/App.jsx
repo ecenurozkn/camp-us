@@ -3,6 +3,7 @@ import {
   Home,
   CalendarDays,
   Users,
+  Library,
   UtensilsCrossed,
   MessageSquareHeart,
   ShieldAlert,
@@ -34,7 +35,8 @@ import AuthScreen from './components/AuthScreen';
 import DashboardTab from './components/DashboardTab';
 import CalendarAnnouncementsTab from './components/CalendarAnnouncementsTab';
 import ClubsTab from './components/ClubsTab';
-import LibraryCafeteriaTab from './components/LibraryCafeteriaTab';
+import LibraryTab from './components/LibraryTab';
+import CafeteriaTab from './components/CafeteriaTab';
 import SocialFeedTab from './components/SocialFeedTab';
 import SafetyReportTab from './components/SafetyReportTab';
 import CampusNetworkModal from './components/CampusNetworkModal';
@@ -104,7 +106,7 @@ export default function App() {
     loadFromStorage(STORAGE_KEYS.ANNOUNCEMENTS, INITIAL_ANNOUNCEMENTS)
   );
 
-  // 11.40 - 12.20 Lunch Break State (defaults to true so the Öğrenci İşleri & Ofis Saatleri lunch break badge is immediately visible, and toggleable anytime)
+  // 11:40 - 12:20 Lunch Break State
   const [isLunchBreakActive, setIsLunchBreakActive] = useState(() =>
     loadFromStorage(STORAGE_KEYS.LUNCH_BREAK, true)
   );
@@ -112,7 +114,7 @@ export default function App() {
   // Active Navigation Tab
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Modals (Note: Cultural Book/Movie modal was removed; it is now inline on DashboardTab)
+  // Modals
   const [infirmaryModalOpen, setInfirmaryModalOpen] = useState(false);
   const [cafeteriaModalOpen, setCafeteriaModalOpen] = useState(false);
   const [networkModalOpen, setNetworkModalOpen] = useState(false);
@@ -449,21 +451,23 @@ export default function App() {
   const currentStatusMeta =
     STATUS_OPTIONS.find((s) => s.id === currentUser.status) || STATUS_OPTIONS[0];
 
+  // Separated Navigation Tabs: "Kütüphane" and "Yemekhane" are completely independent tabs
   const NAV_ITEMS = [
-    { id: 'dashboard', label: 'Ana Sayfa', shortLabel: 'Home', icon: Home },
+    { id: 'dashboard', label: 'Ana Sayfa', shortLabel: 'Ana Sayfa', icon: Home },
     { id: 'calendar', label: 'Takvim & Duyuru', shortLabel: 'Takvim', icon: CalendarDays },
-    { id: 'clubs', label: 'Topluluklar', shortLabel: 'Clubs', icon: Users },
-    { id: 'library_food', label: 'Kütüphane & Yemek', shortLabel: 'Yemek', icon: UtensilsCrossed },
+    { id: 'clubs', label: 'Topluluklar', shortLabel: 'Kulüp', icon: Users },
+    { id: 'library', label: 'Kütüphane', shortLabel: 'Kütüphane', icon: Library },
+    { id: 'cafeteria', label: 'Yemekhane', shortLabel: 'Yemekhane', icon: UtensilsCrossed },
     { id: 'feed', label: 'Sosyal Akış', shortLabel: 'Blog', icon: MessageSquareHeart },
-    { id: 'safety', label: 'Bahçe Güvenlik', shortLabel: 'Safety', icon: ShieldAlert },
+    { id: 'safety', label: 'Bahçe Güvenlik', shortLabel: 'Güvenlik', icon: ShieldAlert },
   ];
 
   const unresolvedSafetyCount = safetyReports.filter((r) => !r.isResolved).length;
 
   return (
     <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 lg:pb-14">
-      {/* TOP GLASSMORPHIC HEADER + DESKTOP FLOATING PILL BAR */}
-      <header className="sticky top-3 z-30 my-3.5 glass-card rounded-full px-4 sm:px-6 py-3 flex items-center justify-between gap-2.5">
+      {/* TOP HEADER (No Sticky Overlap, No Blur Overlay, Crisp Solid Card) */}
+      <header className="my-3.5 glass-card rounded-3xl px-4 sm:px-6 py-3 flex items-center justify-between gap-2.5">
         {/* Left: Brand Logo & ABÜ Identity */}
         <div
           onClick={() => setActiveTab('dashboard')}
@@ -472,7 +476,7 @@ export default function App() {
           <img
             src="./icon-192.png"
             alt="Camp’Us ABÜ Icon"
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shadow-md border border-white/50 shrink-0"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shadow-md border border-white shrink-0"
           />
           <div>
             <div className="flex items-center gap-1.5">
@@ -527,7 +531,7 @@ export default function App() {
           })}
         </nav>
 
-        {/* Right: Spacious Quick Action Pills + Prominent 🚨 Acil Revir Button */}
+        {/* Right: Quick Action Pills + Prominent 🚨 Acil Revir Button */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* 🚨 ACİL REVİR / SAĞLIK YARDIMI BUTTON */}
           <button
@@ -570,7 +574,7 @@ export default function App() {
           <button
             type="button"
             onClick={handleResetDemoData}
-            className="hidden sm:flex w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#142E2C] items-center justify-center border border-[#142E2C]/15 transition"
+            className="hidden sm:flex w-9 h-9 rounded-full bg-white hover:bg-slate-50 text-[#142E2C] items-center justify-center border border-[#142E2C]/15 transition"
             title="Verileri Sıfırla"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -589,7 +593,7 @@ export default function App() {
       </header>
 
       {/* MAIN RESPONSIVE CONTENT AREA */}
-      <main className="flex-1 pt-2">
+      <main className="flex-1 pt-1">
         {activeTab === 'dashboard' && (
           <DashboardTab
             currentUser={currentUser}
@@ -642,11 +646,16 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'library_food' && (
-          <LibraryCafeteriaTab
+        {activeTab === 'library' && (
+          <LibraryTab
             libraryData={libraryData}
             onToggleStudyRoom={handleToggleStudyRoom}
             onChangeLibraryOccupancy={handleChangeLibraryOccupancy}
+          />
+        )}
+
+        {activeTab === 'cafeteria' && (
+          <CafeteriaTab
             onOpenCafeteriaModal={() => setCafeteriaModalOpen(true)}
           />
         )}
@@ -676,11 +685,11 @@ export default function App() {
         )}
       </main>
 
-      {/* MOBILE FLOATING PETROL PILL BAR (Active tab = Wide White Pill, Inactive = Circular Icons) */}
-      <div className="fixed bottom-4 left-0 right-0 z-40 flex justify-center px-3 lg:hidden pointer-events-none pb-safe">
+      {/* MOBILE BOTTOM NAVIGATION BAR (Separate Kütüphane & Yemekhane Buttons, Solid Crisp Surface) */}
+      <div className="fixed bottom-4 left-0 right-0 z-40 flex justify-center px-2.5 lg:hidden pointer-events-none pb-safe">
         <nav
-          aria-label="Mobil Yüzen Gezinme Kapsülü"
-          className="pointer-events-auto bg-[#142E2C]/95 backdrop-blur-2xl border border-white/20 rounded-full p-2 shadow-pill flex items-center gap-1.5"
+          aria-label="Mobil Alt Gezinme Menüsü"
+          className="pointer-events-auto bg-[#142E2C] border border-white/20 rounded-full p-1.5 shadow-pill flex items-center gap-1 max-w-full overflow-x-auto"
         >
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -690,16 +699,17 @@ export default function App() {
                 key={item.id}
                 type="button"
                 onClick={() => setActiveTab(item.id)}
+                title={item.label}
                 className={
                   active
-                    ? 'bg-white text-[#142E2C] rounded-full px-4 py-2.5 font-black text-xs flex items-center gap-2 shadow-md transition-all'
-                    : 'w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white/85 flex items-center justify-center transition-all relative'
+                    ? 'bg-white text-[#142E2C] rounded-full px-3.5 py-2.5 font-black text-xs flex items-center gap-1.5 shadow-md transition-all shrink-0'
+                    : 'w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white/90 flex items-center justify-center transition-all relative shrink-0'
                 }
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 {active && <span>{item.shortLabel}</span>}
                 {!active && item.id === 'safety' && unresolvedSafetyCount > 0 && (
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF8A3D] absolute top-1.5 right-1.5" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF8A3D] absolute top-1 right-1" />
                 )}
               </button>
             );
@@ -735,8 +745,8 @@ export default function App() {
 
       {/* PWA ADD TO HOME SCREEN MODAL */}
       {showPwaGuideModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1C1B]/65 backdrop-blur-md p-4">
-          <div className="glass-card w-full max-w-md rounded-[32px] p-6 border border-white/60 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#142E2C]/75 p-4">
+          <div className="glass-card w-full max-w-md rounded-[32px] p-6 border border-white space-y-4">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
                 <img

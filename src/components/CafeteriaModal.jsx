@@ -20,7 +20,7 @@ export default function CafeteriaModal({ isOpen, onClose }) {
     CAFETERIA_MENUS[0];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0B1C1B]/65 backdrop-blur-md p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#142E2C]/75 p-0 sm:p-4">
       <div className="glass-card w-full max-w-xl rounded-t-[32px] sm:rounded-[32px] max-h-[92vh] flex flex-col overflow-hidden border border-white/60">
         {/* Header */}
         <div className="px-6 pt-5 pb-4 bg-gradient-to-r from-[#142E2C] via-[#1D3534] to-[#3A5A58] text-white relative">
@@ -44,7 +44,7 @@ export default function CafeteriaModal({ isOpen, onClose }) {
           </p>
 
           {/* Day Selector */}
-          <div className="grid grid-cols-3 gap-2 mt-3.5 bg-black/25 p-1 rounded-2xl">
+          <div className="grid grid-cols-3 gap-2 mt-3.5 bg-[#0F2422] p-1 rounded-2xl">
             {CAFETERIA_MENUS.map((m) => (
               <button
                 key={m.dayId}

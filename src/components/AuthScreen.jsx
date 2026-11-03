@@ -84,7 +84,7 @@ export default function AuthScreen({ onLogin }) {
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         {/* Left Hero Column (Desktop Bento Preview) */}
         <div className="lg:col-span-5 text-white space-y-5 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#142E2C]/70 border border-white/25 backdrop-blur-md text-xs font-bold text-[#A9C6C1]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#142E2C] border border-white/25 text-xs font-bold text-[#A9C6C1]">
             <Sparkles className="w-4 h-4 text-[#FF8A3D]" />
             <span>Ankara Bilim Üniversitesi • Resmi Kampüs PWA</span>
           </div>

@@ -23,7 +23,7 @@ export default function EmergencyInfirmaryModal({ isOpen, onClose, currentUser }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0B1C1B]/70 backdrop-blur-md p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#142E2C]/75 p-0 sm:p-4">
       <div className="glass-card w-full max-w-lg rounded-t-[34px] sm:rounded-[34px] border-2 border-rose-400/60 max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
         {/* Urgent Red/Orange Header */}
         <div className="px-6 pt-6 pb-5 bg-gradient-to-r from-rose-600 via-red-600 to-[#FF8A3D] text-white relative">

@@ -141,14 +141,42 @@ export const ABU_SCHEDULE_RULES = {
   lunchStartMinutes: 11 * 60 + 40, // 700
   lunchEndMinutes: 12 * 60 + 20,   // 740
   dailyBlocks: [
-    { id: 'slot-1', slot: '09:00 - 09:50', time: '09.00 - 09.50', title: '1. Ders Oturumu', label: '1. Ders Oturumu', detail: 'Sabah ders başlangıcı', type: 'lesson' },
-    { id: 'slot-2', slot: '10:00 - 10:50', time: '10.00 - 10.50', title: '2. Ders Oturumu', label: '2. Ders Oturumu', detail: 'Kuşluk ders bloğu', type: 'lesson' },
-    { id: 'slot-3', slot: '10:50 - 11:40', time: '10.50 - 11.40', title: '3. Ders Oturumu', label: '3. Ders Oturumu', detail: 'Öğle öncesi son ders', type: 'lesson' },
-    { id: 'slot-lunch', slot: '11:40 - 12:20', time: '11.40 - 12.20', title: 'ÖĞLE ARASI (Öğrenci İşleri & Ofisler Kapalı)', label: '🍽️ ÖĞLE ARASI', detail: 'Öğrenci İşleri kapalıdır • Hocalar ofiste bulunmaz', type: 'lunch' },
-    { id: 'slot-4', slot: '12:20 - 13:10', time: '12.20 - 13.10', title: '4. Ders Oturumu', label: '4. Ders Oturumu', detail: 'Öğleden sonra ders başlangıcı', type: 'lesson' },
-    { id: 'slot-5', slot: '13:20 - 15:00', time: '13.20 - 15.00', title: '5. & 6. Ders Oturumu', label: '5. & 6. Ders Oturumu', detail: 'Uygulama & Lab saatleri', type: 'lesson' },
-    { id: 'slot-6', slot: '15:10 - 17:00', time: '15.10 - 17.00', title: '7. & 8. Ders Oturumu', label: '7. & 8. Ders Oturumu', detail: 'İkindi ders & ofis saatleri', type: 'lesson' },
-    { id: 'slot-7', slot: '17:10 - 18:10', time: '17.10 - 18.10', title: 'Akşam / Seçmeli Ders Kapanış Oturumu', label: '9. Ders (Kapanış)', detail: 'Gün sonu ders bitişi (18.00 - 18.10)', type: 'lesson' },
+    {
+      id: 'slot-morning',
+      slot: '09:00 - 11:40',
+      time: '09:00 - 11:40',
+      title: 'Sabah Dersleri',
+      label: 'Sabah Dersleri',
+      detail: '09:00 - 11:40 Sabah Oturumları',
+      type: 'lesson',
+    },
+    {
+      id: 'slot-lunch',
+      slot: '11:40 - 12:20',
+      time: '11:40 - 12:20',
+      title: 'Öğle Arası (11:40 - 12:20)',
+      label: 'Öğle Arası (11:40 - 12:20)',
+      detail: 'Öğrenci İşleri kapalıdır • Hocalar ofiste bulunmaz',
+      type: 'lunch',
+    },
+    {
+      id: 'slot-afternoon',
+      slot: '12:20 - 17:00',
+      time: '12:20 - 17:00',
+      title: 'Öğleden Sonra Dersleri',
+      label: 'Öğleden Sonra Dersleri',
+      detail: '12:20 - 17:00 Ders ve Laboratuvar Oturumları',
+      type: 'lesson',
+    },
+    {
+      id: 'slot-evening',
+      slot: '17:10 - 18:10',
+      time: '18:00 - 18:10',
+      title: 'Akşam Kapanış (18:00 - 18:10)',
+      label: 'Akşam Kapanış (18:00 - 18:10)',
+      detail: 'Son ders oturumu ve gün sonu kapanış',
+      type: 'lesson',
+    },
   ],
 };
 

@@ -213,12 +213,12 @@ export default function DashboardTab({
           className={`lg:col-span-8 rounded-[32px] p-6 sm:p-7 border transition-all flex flex-col justify-between gap-4 ${
             currentCampusMode.isOpen
               ? 'glass-petrol text-white'
-              : 'bg-gradient-to-r from-rose-800/95 via-red-800/95 to-orange-800/95 backdrop-blur-xl text-white border-rose-400/40 shadow-glass-dark'
+              : 'bg-gradient-to-r from-rose-800 via-red-800 to-orange-800 text-white border-rose-400/40 shadow-glass-dark'
           }`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/20">
+              <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0 border border-white/20">
                 <Building2 className="w-6 h-6 text-[#FF8A3D]" />
               </div>
               <div className="space-y-1.5">
@@ -294,7 +294,7 @@ export default function DashboardTab({
           </div>
 
           {showModeSwitcher && (
-            <div className="p-3.5 rounded-2xl bg-black/25 backdrop-blur-md space-y-2.5 border border-white/10">
+            <div className="p-3.5 rounded-2xl bg-[#0F2422] space-y-2.5 border border-white/15">
               <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#A9C6C1]">
                 Okul Durum Senaryosu:
               </p>
@@ -528,7 +528,7 @@ export default function DashboardTab({
               className={`p-4 rounded-2xl font-black text-sm leading-relaxed ${
                 escalatorState.isWorking
                   ? 'bg-emerald-500/15 text-[#142E2C] border border-emerald-500/25'
-                  : 'bg-black/25 text-white border border-white/20 shadow-inner'
+                  : 'bg-[#142E2C] text-white border border-white/20'
               }`}
             >
               {escalatorState.isWorking
@@ -833,7 +833,7 @@ export default function DashboardTab({
 
               <button
                 type="button"
-                onClick={() => onNavigateTab('library_food')}
+                onClick={() => onNavigateTab('library')}
                 className="text-xs font-extrabold text-[#142E2C] hover:text-[#FF8A3D] inline-flex items-center gap-1"
               >
                 <span>Kütüphane Sekmesi</span>
@@ -946,17 +946,30 @@ export default function DashboardTab({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenCafeteriaModal();
-            }}
-            className="w-full py-3 px-4 rounded-2xl bg-[#142E2C] group-hover:bg-[#FF8A3D] text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition shadow-sm"
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Menü & Kalori Dağılım Grafiğini Aç</span>
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigateTab('cafeteria');
+              }}
+              className="py-3 px-4 rounded-2xl bg-white hover:bg-[#142E2C] hover:text-white text-[#142E2C] border border-[#142E2C]/15 text-xs font-black flex items-center justify-center gap-1.5 transition"
+            >
+              <Utensils className="w-4 h-4 text-[#FF8A3D]" />
+              <span>Yemekhane Sekmesine Git</span>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenCafeteriaModal();
+              }}
+              className="py-3 px-4 rounded-2xl bg-[#142E2C] group-hover:bg-[#FF8A3D] text-white text-xs font-black flex items-center justify-center gap-1.5 transition shadow-sm"
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Kalori Grafiğini Aç</span>
+            </button>
+          </div>
         </section>
       </div>
 

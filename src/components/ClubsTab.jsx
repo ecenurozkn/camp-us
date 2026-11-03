@@ -221,7 +221,7 @@ export default function ClubsTab({
             onSubmit={handleAdminSubmit}
             className="p-4 rounded-3xl bg-white/10 border border-white/20 space-y-3"
           >
-            <div className="grid grid-cols-3 gap-2 bg-black/25 p-1 rounded-2xl">
+            <div className="grid grid-cols-3 gap-2 bg-[#0F2422] p-1 rounded-2xl">
               {[
                 { id: 'event', label: '📅 Kulüp Etkinliği Ekle' },
                 { id: 'announcement', label: '📢 Kampüs Duyurusu Ekle' },
@@ -330,7 +330,7 @@ export default function ClubsTab({
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex items-center gap-3.5">
-                <div className="w-16 h-16 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl">
+                <div className="w-16 h-16 rounded-3xl bg-white/20 flex items-center justify-center text-3xl">
                   {activeClub.icon}
                 </div>
                 <div>
@@ -362,7 +362,7 @@ export default function ClubsTab({
               </button>
             </div>
 
-            <p className="text-xs sm:text-sm text-white/95 leading-relaxed bg-black/20 p-4 rounded-2xl">
+            <p className="text-xs sm:text-sm text-white/95 leading-relaxed bg-[#142E2C]/60 p-4 rounded-2xl">
               {activeClub.description}
             </p>
 
