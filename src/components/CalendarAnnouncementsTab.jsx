@@ -8,28 +8,37 @@ import {
   MapPin,
   Clock,
   CheckCircle2,
-  Sparkles,
   ChevronDown,
   ChevronUp,
   RefreshCw,
   ExternalLink,
   Plus,
+  Building,
+  GraduationCap,
+  AlertOctagon,
+  Mail,
 } from 'lucide-react';
 import {
   ACADEMIC_ALERTS,
   SOCIAL_CALENDAR_EVENTS,
+  ABU_SCHEDULE_RULES,
+  STUDENT_AFFAIRS_INFO,
+  PROFESSOR_OFFICE_HOURS,
 } from '../data/mockCampusData';
 
 export default function CalendarAnnouncementsTab({
   announcements,
   onAddAnnouncement,
   currentUser,
+  isLunchBreakActive,
+  onToggleLunchBreakSimulation,
 }) {
   const [activeSubView, setActiveSubView] = useState('all');
   const [announcementCategory, setAnnouncementCategory] = useState('Tümü');
   const [socialViewPeriod, setSocialViewPeriod] = useState('semester');
   const [expandedAlertId, setExpandedAlertId] = useState('alert-exam');
   const [rsvpEvents, setRsvpEvents] = useState(['soc-3', 'soc-6']);
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState('Tümü');
 
   // Live sync state with https://ankarabilim.edu.tr
   const [isSyncingAbu, setIsSyncingAbu] = useState(false);
@@ -48,13 +57,21 @@ export default function CalendarAnnouncementsTab({
   const [annLocation, setAnnLocation] = useState('ABÜ Konferans Salonu A');
   const [annSummary, setAnnSummary] = useState('');
 
+  const professorDepts = [
+    'Tümü',
+    ...Array.from(new Set(PROFESSOR_OFFICE_HOURS.map((p) => p.department))),
+  ];
+  const filteredProfessors =
+    selectedDeptFilter === 'Tümü'
+      ? PROFESSOR_OFFICE_HOURS
+      : PROFESSOR_OFFICE_HOURS.filter((p) => p.department === selectedDeptFilter);
+
   const handleSyncFromAbuWebsite = async () => {
     setIsSyncingAbu(true);
     setSyncMessage('');
     let fetchedFromLive = false;
 
     try {
-      // Attempt live fetch from https://ankarabilim.edu.tr (with short timeout for CORS fallback)
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2200);
       const res = await fetch('https://ankarabilim.edu.tr', {
@@ -148,14 +165,14 @@ export default function CalendarAnnouncementsTab({
       : SOCIAL_CALENDAR_EVENTS.filter((e) => e.monthKey === socialViewPeriod);
 
   return (
-    <div className="space-y-5 pb-10">
+    <div className="space-y-6 pb-12">
       {/* Top ABÜ Sync Header & Filter Bar */}
-      <div className="glass-card rounded-[32px] p-5 space-y-4">
+      <div className="glass-card rounded-[32px] p-5 sm:p-6 space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-lg sm:text-xl font-black text-[#142E2C]">
-                ABÜ Akademik, İdari & Sosyal Takvim
+                ABÜ Akademik Takvim, Ofis Saatleri & Duyurular
               </h2>
               <a
                 href="https://ankarabilim.edu.tr"
@@ -168,11 +185,28 @@ export default function CalendarAnnouncementsTab({
               </a>
             </div>
             <p className="text-xs text-[#3A5A58] font-medium mt-0.5">
-              {lastSyncText}
+              {lastSyncText} • Dersler: 09.00 - 18.10 • Öğle Arası: 11.40 - 12.20
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={onToggleLunchBreakSimulation}
+              className={`px-3.5 py-2.5 rounded-full text-xs font-black inline-flex items-center gap-1.5 transition shadow-sm ${
+                isLunchBreakActive
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-white text-[#142E2C] border border-[#142E2C]/15'
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>
+                {isLunchBreakActive
+                  ? '11.40-12.20 Öğle Arası: AÇIK'
+                  : '11.40-12.20 Öğle Arasını Test Et'}
+              </span>
+            </button>
+
             <button
               type="button"
               onClick={handleSyncFromAbuWebsite}
@@ -186,7 +220,7 @@ export default function CalendarAnnouncementsTab({
               />
               <span>
                 {isSyncingAbu
-                  ? 'ankarabilim.edu.tr Senkronize Ediliyor...'
+                  ? 'Senkronize Ediliyor...'
                   : 'ABÜ Resmi Sitesinden Senkronize Et'}
               </span>
             </button>
@@ -276,9 +310,10 @@ export default function CalendarAnnouncementsTab({
         )}
 
         {/* Sub-view Switcher */}
-        <div className="grid grid-cols-4 gap-1.5 bg-[#142E2C]/10 p-1.5 rounded-2xl">
+        <div className="flex items-center gap-1.5 overflow-x-auto bg-[#142E2C]/10 p-1.5 rounded-2xl">
           {[
             { id: 'all', label: 'Tümü' },
+            { id: 'office', label: 'Öğrenci İşleri & Ofis Saatleri' },
             { id: 'academic', label: 'Kritik Sorular' },
             { id: 'announcements', label: 'ABÜ Duyurular' },
             { id: 'social', label: 'Sosyal Takvim' },
@@ -287,7 +322,7 @@ export default function CalendarAnnouncementsTab({
               key={tab.id}
               type="button"
               onClick={() => setActiveSubView(tab.id)}
-              className={`py-2 px-2 rounded-xl text-xs font-black transition ${
+              className={`py-2 px-3.5 rounded-xl text-xs font-black whitespace-nowrap transition ${
                 activeSubView === tab.id
                   ? 'bg-[#142E2C] text-white shadow-sm'
                   : 'text-[#142E2C] hover:bg-white/50'
@@ -298,6 +333,161 @@ export default function CalendarAnnouncementsTab({
           ))}
         </div>
       </div>
+
+      {/* ÖĞRENCİ İŞLERİ, DERS SAATLERİ (09.00-18.10) VE HOCALARIN OFİS SAATLERİ */}
+      {(activeSubView === 'all' || activeSubView === 'office') && (
+        <section className="glass-card rounded-[32px] p-5 sm:p-6 space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* Left: Öğrenci İşleri & Ders Blokları */}
+            <div className="lg:col-span-5 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-[#142E2C] text-[#FF8A3D] flex items-center justify-center shrink-0">
+                    <Building className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-black text-[#142E2C]">
+                      {STUDENT_AFFAIRS_INFO.unitName}
+                    </h3>
+                    <p className="text-xs text-[#3A5A58] font-medium">
+                      Mesai: {STUDENT_AFFAIRS_INFO.workingHours} • Öğle Arası:{' '}
+                      {STUDENT_AFFAIRS_INFO.lunchBreakHours}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-[11px] font-black ${
+                    isLunchBreakActive
+                      ? 'bg-rose-600 text-white animate-pulse'
+                      : 'bg-emerald-600 text-white'
+                  }`}
+                >
+                  {isLunchBreakActive
+                    ? `⛔ ${STUDENT_AFFAIRS_INFO.lunchBreakClosedBadge}`
+                    : '✅ Hizmete Açık'}
+                </span>
+              </div>
+
+              <div
+                className={`p-4 rounded-2xl border ${
+                  isLunchBreakActive
+                    ? 'bg-rose-500/15 border-rose-500/40 text-rose-950'
+                    : 'bg-white/80 border-[#142E2C]/15 text-[#142E2C]'
+                }`}
+              >
+                <p className="text-xs font-black">
+                  {isLunchBreakActive
+                    ? `⚠️ ${STUDENT_AFFAIRS_INFO.lunchBreakClosedNote}`
+                    : 'Öğrenci İşleri bankoları 09.00 - 11.40 ve 12.20 - 17.30 saatleri arasında açıktır (11.40 - 12.20 öğle arası kapalıdır).'}
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-black uppercase tracking-wider text-[#3A5A58]">
+                  ABÜ Günlük Ders & Öğle Arası Çizelgesi (09.00 - 18.10)
+                </p>
+                {ABU_SCHEDULE_RULES.dailyBlocks.map((b) => (
+                  <div
+                    key={b.id}
+                    className={`px-3.5 py-2 rounded-2xl text-xs flex items-center justify-between ${
+                      b.type === 'lunch'
+                        ? 'bg-amber-500/20 border border-amber-500/40 text-amber-950 font-black'
+                        : 'glass-tile text-[#142E2C] font-bold'
+                    }`}
+                  >
+                    <span>
+                      {b.label} ({b.time})
+                    </span>
+                    <span className="text-[11px] text-[#3A5A58]">{b.detail}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Akademik Kadro & Hocaların Ofis Saatleri */}
+            <div className="lg:col-span-7 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-[#FF8A3D] text-white flex items-center justify-center shrink-0">
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-black text-[#142E2C]">
+                      Akademik Kadro / Hocaların Ofis Saatleri
+                    </h3>
+                    <p className="text-xs text-[#3A5A58] font-medium">
+                      Not: 11.40 - 12.20 öğle arasında hocalar ofislerinde bulunmamaktadır
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/35 text-amber-950 text-xs font-extrabold flex items-center gap-2">
+                <AlertOctagon className="w-4 h-4 text-amber-700 shrink-0" />
+                <span>
+                  11.40 - 12.20 Öğle Arası Notu: Akademisyenlerimiz bu saat aralığında
+                  öğle arasında olduğu için ofislerinde olmayacaktır.
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                {professorDepts.map((dept) => (
+                  <button
+                    key={dept}
+                    type="button"
+                    onClick={() => setSelectedDeptFilter(dept)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap border transition ${
+                      selectedDeptFilter === dept
+                        ? 'bg-[#142E2C] text-white border-[#142E2C]'
+                        : 'bg-white/75 text-[#142E2C] border-[#142E2C]/15'
+                    }`}
+                  >
+                    {dept}
+                  </button>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {filteredProfessors.map((prof) => (
+                  <div
+                    key={prof.id}
+                    className="p-4 rounded-3xl glass-tile flex flex-col justify-between space-y-2"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#142E2C]/10 text-[#142E2C] text-[10px] font-black">
+                          {prof.department}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                            isLunchBreakActive
+                              ? 'bg-amber-500 text-white'
+                              : 'bg-emerald-600 text-white'
+                          }`}
+                        >
+                          {isLunchBreakActive ? '☕ Öğle Arasında' : '✅ Ofis Günü'}
+                        </span>
+                      </div>
+                      <h4 className="text-xs sm:text-sm font-black text-[#142E2C]">
+                        {prof.name}
+                      </h4>
+                      <p className="text-[11px] font-bold text-[#3A5A58]">
+                        📍 {prof.officeRoom}
+                      </p>
+                      <p className="text-[11px] font-extrabold text-[#142E2C]">
+                        🕒 {prof.officeDays} • {prof.officeHours}
+                      </p>
+                    </div>
+                    <p className="text-[10px] font-bold text-amber-900 bg-amber-500/15 px-2.5 py-1.5 rounded-xl border border-amber-500/25">
+                      📌 {prof.lunchNote}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 1. AKADEMİK VE İDARİ BİLDİRİMLER (Sabit Bilgi Kartları & Geri Sayımlar) */}
       {(activeSubView === 'all' || activeSubView === 'academic') && (

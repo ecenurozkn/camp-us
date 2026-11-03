@@ -7,13 +7,13 @@ import {
   MessageSquareHeart,
   ShieldAlert,
   Smartphone,
-  Sparkles,
   LogOut,
   RotateCcw,
   X,
   Share,
   PlusSquare,
   Award,
+  HeartPulse,
 } from 'lucide-react';
 
 import {
@@ -37,23 +37,24 @@ import ClubsTab from './components/ClubsTab';
 import LibraryCafeteriaTab from './components/LibraryCafeteriaTab';
 import SocialFeedTab from './components/SocialFeedTab';
 import SafetyReportTab from './components/SafetyReportTab';
-import CultureSpotlightModal from './components/CultureSpotlightModal';
 import CampusNetworkModal from './components/CampusNetworkModal';
 import CafeteriaModal from './components/CafeteriaModal';
+import EmergencyInfirmaryModal from './components/EmergencyInfirmaryModal';
 
 const STORAGE_KEYS = {
-  USER: 'campus_abu_user_v2',
-  STUDENTS: 'campus_abu_students_v2',
-  CULTURE: 'campus_abu_culture_v2',
-  LIBRARY: 'campus_abu_library_v2',
-  CLUBS: 'campus_abu_clubs_v2',
-  PROPOSALS: 'campus_abu_proposals_v2',
-  POSTS: 'campus_abu_posts_v2',
-  CAMPUS_MODE: 'campus_abu_mode_v2',
-  ESCALATOR: 'campus_abu_escalator_v2',
-  DEALS: 'campus_abu_deals_v2',
-  SAFETY: 'campus_abu_safety_v2',
-  ANNOUNCEMENTS: 'campus_abu_announcements_v2',
+  USER: 'campus_abu_user_v3',
+  STUDENTS: 'campus_abu_students_v3',
+  CULTURE: 'campus_abu_culture_v3',
+  LIBRARY: 'campus_abu_library_v3',
+  CLUBS: 'campus_abu_clubs_v3',
+  PROPOSALS: 'campus_abu_proposals_v3',
+  POSTS: 'campus_abu_posts_v3',
+  CAMPUS_MODE: 'campus_abu_mode_v3',
+  ESCALATOR: 'campus_abu_escalator_v3',
+  DEALS: 'campus_abu_deals_v3',
+  SAFETY: 'campus_abu_safety_v3',
+  ANNOUNCEMENTS: 'campus_abu_announcements_v3',
+  LUNCH_BREAK: 'campus_abu_lunch_break_v3',
 };
 
 const loadFromStorage = (key, fallback) => {
@@ -103,12 +104,16 @@ export default function App() {
     loadFromStorage(STORAGE_KEYS.ANNOUNCEMENTS, INITIAL_ANNOUNCEMENTS)
   );
 
+  // 11.40 - 12.20 Lunch Break State (defaults to true so the Öğrenci İşleri & Ofis Saatleri lunch break badge is immediately visible, and toggleable anytime)
+  const [isLunchBreakActive, setIsLunchBreakActive] = useState(() =>
+    loadFromStorage(STORAGE_KEYS.LUNCH_BREAK, true)
+  );
+
   // Active Navigation Tab
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Modals
-  const [cultureModalOpen, setCultureModalOpen] = useState(false);
-  const [cultureModalTab, setCultureModalTab] = useState('book');
+  // Modals (Note: Cultural Book/Movie modal was removed; it is now inline on DashboardTab)
+  const [infirmaryModalOpen, setInfirmaryModalOpen] = useState(false);
   const [cafeteriaModalOpen, setCafeteriaModalOpen] = useState(false);
   const [networkModalOpen, setNetworkModalOpen] = useState(false);
   const [selectedNetworkStudent, setSelectedNetworkStudent] = useState(null);
@@ -206,6 +211,15 @@ export default function App() {
     } catch {}
   }, [announcements]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        STORAGE_KEYS.LUNCH_BREAK,
+        JSON.stringify(isLunchBreakActive)
+      );
+    } catch {}
+  }, [isLunchBreakActive]);
+
   // Handlers
   const handleLogin = (studentObj) => {
     setCurrentUser(studentObj);
@@ -247,6 +261,23 @@ export default function App() {
         p.authorEmail === updated.email ? { ...p, authorBadges: newBadges } : p
       )
     );
+  };
+
+  const handleToggleLunchBreakSimulation = () => {
+    setIsLunchBreakActive((prev) => {
+      const next = !prev;
+      setCampusModeId(next ? 'lunch_break' : 'open');
+      return next;
+    });
+  };
+
+  const handleChangeCampusMode = (modeId) => {
+    setCampusModeId(modeId);
+    if (modeId === 'lunch_break') {
+      setIsLunchBreakActive(true);
+    } else if (modeId === 'open') {
+      setIsLunchBreakActive(false);
+    }
   };
 
   const handleUpdateEscalator = (isWorkingNow) => {
@@ -398,6 +429,7 @@ export default function App() {
     setGardenDeals(INITIAL_GARDEN_DEALS);
     setSafetyReports(INITIAL_SAFETY_REPORTS);
     setAnnouncements(INITIAL_ANNOUNCEMENTS);
+    setIsLunchBreakActive(true);
   };
 
   const handleInstallPwaClick = async () => {
@@ -429,9 +461,9 @@ export default function App() {
   const unresolvedSafetyCount = safetyReports.filter((r) => !r.isResolved).length;
 
   return (
-    <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pb-28 lg:pb-12">
+    <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 lg:pb-14">
       {/* TOP GLASSMORPHIC HEADER + DESKTOP FLOATING PILL BAR */}
-      <header className="sticky top-3 z-30 my-3 glass-card rounded-full px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+      <header className="sticky top-3 z-30 my-3.5 glass-card rounded-full px-4 sm:px-6 py-3 flex items-center justify-between gap-2.5">
         {/* Left: Brand Logo & ABÜ Identity */}
         <div
           onClick={() => setActiveTab('dashboard')}
@@ -440,7 +472,7 @@ export default function App() {
           <img
             src="./icon-192.png"
             alt="Camp’Us ABÜ Icon"
-            className="w-11 h-11 rounded-2xl shadow-md border border-white/50 shrink-0"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shadow-md border border-white/50 shrink-0"
           />
           <div>
             <div className="flex items-center gap-1.5">
@@ -453,7 +485,7 @@ export default function App() {
               </span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <p className="text-[11px] font-bold text-[#3A5A58] truncate max-w-[140px] sm:max-w-[210px]">
+              <p className="text-[11px] font-bold text-[#3A5A58] truncate max-w-[115px] sm:max-w-[200px]">
                 {currentUser.name}
               </p>
               {currentUser.titleBadges?.[0] && (
@@ -495,8 +527,19 @@ export default function App() {
           })}
         </nav>
 
-        {/* Right: Quick Action Pills */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* Right: Spacious Quick Action Pills + Prominent 🚨 Acil Revir Button */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* 🚨 ACİL REVİR / SAĞLIK YARDIMI BUTTON */}
+          <button
+            type="button"
+            onClick={() => setInfirmaryModalOpen(true)}
+            className="px-3 sm:px-3.5 py-2 rounded-full bg-gradient-to-r from-rose-600 to-[#FF8A3D] hover:from-rose-700 hover:to-[#E66B1F] text-white text-xs font-black inline-flex items-center gap-1.5 shadow-md transition"
+            title="🚨 Acil Revir / Sağlık Yardımı Çağır"
+          >
+            <HeartPulse className="w-4 h-4 animate-pulse shrink-0" />
+            <span className="hidden sm:inline">🚨 Acil Revir</span>
+          </button>
+
           {/* Status & Title Badges Button */}
           <button
             type="button"
@@ -504,43 +547,30 @@ export default function App() {
               setSelectedNetworkStudent(currentUser);
               setNetworkModalOpen(true);
             }}
-            className={`px-3 py-1.5 rounded-full border text-xs font-black inline-flex items-center gap-1.5 transition ${currentStatusMeta.badgeClass}`}
+            className={`px-3 py-2 rounded-full border text-xs font-black inline-flex items-center gap-1.5 transition ${currentStatusMeta.badgeClass}`}
             title="Durumunu & Görev Rozetlerini Yönet"
           >
             <span>{currentStatusMeta.emoji}</span>
-            <span className="hidden sm:inline">{currentStatusMeta.label}</span>
+            <span className="hidden md:inline">{currentStatusMeta.label}</span>
             <Award className="w-3.5 h-3.5 text-[#FF8A3D]" />
-          </button>
-
-          {/* Culture Pop-up Trigger */}
-          <button
-            type="button"
-            onClick={() => {
-              setCultureModalTab('book');
-              setCultureModalOpen(true);
-            }}
-            className="w-9 h-9 rounded-full bg-[#142E2C] hover:bg-[#FF8A3D] text-white flex items-center justify-center transition shadow-sm"
-            title="Ayın Kitabı & Ayın Filmi Pop-up"
-          >
-            <Sparkles className="w-4 h-4 text-[#FF8A3D] hover:text-white" />
           </button>
 
           {/* PWA Install Button */}
           <button
             type="button"
             onClick={handleInstallPwaClick}
-            className="px-3 py-1.5 rounded-full bg-[#FF8A3D] hover:bg-[#E66B1F] text-white text-xs font-black inline-flex items-center gap-1 shadow-sm transition"
+            className="w-9 h-9 sm:w-auto sm:px-3 sm:py-2 rounded-full bg-[#142E2C] hover:bg-[#1D3534] text-white text-xs font-black inline-flex items-center justify-center gap-1.5 shadow-sm transition"
             title="Ana Ekrana Ekle (PWA)"
           >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">PWA Ekle</span>
+            <Smartphone className="w-3.5 h-3.5 text-[#FF8A3D]" />
+            <span className="hidden xl:inline">PWA Ekle</span>
           </button>
 
           {/* Reset Demo Data */}
           <button
             type="button"
             onClick={handleResetDemoData}
-            className="w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#142E2C] flex items-center justify-center border border-[#142E2C]/15 transition"
+            className="hidden sm:flex w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#142E2C] items-center justify-center border border-[#142E2C]/15 transition"
             title="Verileri Sıfırla"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -565,7 +595,9 @@ export default function App() {
             currentUser={currentUser}
             onUpdateMyStatus={handleUpdateMyStatus}
             campusModeId={campusModeId}
-            onChangeCampusMode={setCampusModeId}
+            onChangeCampusMode={handleChangeCampusMode}
+            isLunchBreakActive={isLunchBreakActive}
+            onToggleLunchBreakSimulation={handleToggleLunchBreakSimulation}
             escalatorState={escalatorState}
             onUpdateEscalator={handleUpdateEscalator}
             gardenDeals={gardenDeals}
@@ -573,10 +605,7 @@ export default function App() {
             onLikeGardenDeal={handleLikeGardenDeal}
             safetyReports={safetyReports}
             cultureData={cultureData}
-            onOpenCultureModal={(tabType) => {
-              setCultureModalTab(tabType || 'book');
-              setCultureModalOpen(true);
-            }}
+            onAddCultureReview={handleAddCultureReview}
             libraryData={libraryData}
             onToggleStudyRoom={handleToggleStudyRoom}
             students={students}
@@ -585,6 +614,7 @@ export default function App() {
               setNetworkModalOpen(true);
             }}
             onOpenCafeteriaModal={() => setCafeteriaModalOpen(true)}
+            onOpenInfirmaryModal={() => setInfirmaryModalOpen(true)}
             onNavigateTab={setActiveTab}
           />
         )}
@@ -594,6 +624,8 @@ export default function App() {
             announcements={announcements}
             onAddAnnouncement={handleAddAnnouncement}
             currentUser={currentUser}
+            isLunchBreakActive={isLunchBreakActive}
+            onToggleLunchBreakSimulation={handleToggleLunchBreakSimulation}
           />
         )}
 
@@ -676,13 +708,10 @@ export default function App() {
       </div>
 
       {/* MODALS */}
-      <CultureSpotlightModal
-        isOpen={cultureModalOpen}
-        onClose={() => setCultureModalOpen(false)}
-        cultureData={cultureData}
-        initialActiveTab={cultureModalTab}
+      <EmergencyInfirmaryModal
+        isOpen={infirmaryModalOpen}
+        onClose={() => setInfirmaryModalOpen(false)}
         currentUser={currentUser}
-        onAddCultureReview={handleAddCultureReview}
       />
 
       <CafeteriaModal

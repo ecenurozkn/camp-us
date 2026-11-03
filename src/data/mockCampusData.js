@@ -93,12 +93,22 @@ export const CAMPUS_STATUS_MODES = [
   {
     id: 'open',
     isOpen: true,
-    badge: 'AÇIK',
-    title: 'ABÜ Maltepe Kampüsü Açık • Dersler ve Mesai Aktif',
-    subtitle: 'Derslikler 08:30–20:30, Merkez Kütüphane, Bahçe Coffee Hub & MigrosJet açık.',
-    reasonType: 'Normal Akademik İşleyiş (ankarabilim.edu.tr)',
+    badge: 'AÇIK (09.00 - 18.10)',
+    title: 'ABÜ Maltepe Kampüsü Açık • Ders Saatleri: 09:00 – 18:10',
+    subtitle: 'Dersler 09:00’da başlar, 18:00–18:10 civarı sona erer. Öğle Arası: 11:40 – 12:20.',
+    reasonType: 'Normal Akademik İşleyiş (09:00 - 18:10)',
     temperature: '15°C Ankara • Parçalı Bulutlu',
     ringNext: 'Kızılay - Maltepe Yürüyüş Mesafesi / Ring Aktif',
+  },
+  {
+    id: 'lunch_break',
+    isOpen: true,
+    badge: 'ÖĞLE ARASI (11.40 - 12.20)',
+    title: 'Kampüste Öğle Arası (11:40 – 12:20) • Öğrenci İşleri Kapalıdır',
+    subtitle: '11:40 - 12:20 saatleri arasında Öğrenci İşleri kapalıdır ve akademisyenlerimiz öğle arasında olduğu için ofislerinde bulunmamaktadır.',
+    reasonType: 'Öğle Arası Molası (11:40 - 12:20)',
+    temperature: '16°C Ankara • Güneşli',
+    ringNext: 'Yemekhane & Bahçe Coffee Hub Aktif',
   },
   {
     id: 'snow_holiday',
@@ -121,6 +131,160 @@ export const CAMPUS_STATUS_MODES = [
     ringNext: 'Tatil Tarifesi',
   },
 ];
+
+// 1. & 2. Ders Saatleri (09:00 - 18:10), Öğle Arası (11:40 - 12:20) ve Öğrenci İşleri Kuralları
+export const ABU_SCHEDULE_RULES = {
+  classStart: '09:00',
+  classEnd: '18:10',
+  lunchStart: '11:40',
+  lunchEnd: '12:20',
+  lunchStartMinutes: 11 * 60 + 40, // 700
+  lunchEndMinutes: 12 * 60 + 20,   // 740
+  dailyBlocks: [
+    { id: 'slot-1', slot: '09:00 - 09:50', time: '09.00 - 09.50', title: '1. Ders Oturumu', label: '1. Ders Oturumu', detail: 'Sabah ders başlangıcı', type: 'lesson' },
+    { id: 'slot-2', slot: '10:00 - 10:50', time: '10.00 - 10.50', title: '2. Ders Oturumu', label: '2. Ders Oturumu', detail: 'Kuşluk ders bloğu', type: 'lesson' },
+    { id: 'slot-3', slot: '10:50 - 11:40', time: '10.50 - 11.40', title: '3. Ders Oturumu', label: '3. Ders Oturumu', detail: 'Öğle öncesi son ders', type: 'lesson' },
+    { id: 'slot-lunch', slot: '11:40 - 12:20', time: '11.40 - 12.20', title: 'ÖĞLE ARASI (Öğrenci İşleri & Ofisler Kapalı)', label: '🍽️ ÖĞLE ARASI', detail: 'Öğrenci İşleri kapalıdır • Hocalar ofiste bulunmaz', type: 'lunch' },
+    { id: 'slot-4', slot: '12:20 - 13:10', time: '12.20 - 13.10', title: '4. Ders Oturumu', label: '4. Ders Oturumu', detail: 'Öğleden sonra ders başlangıcı', type: 'lesson' },
+    { id: 'slot-5', slot: '13:20 - 15:00', time: '13.20 - 15.00', title: '5. & 6. Ders Oturumu', label: '5. & 6. Ders Oturumu', detail: 'Uygulama & Lab saatleri', type: 'lesson' },
+    { id: 'slot-6', slot: '15:10 - 17:00', time: '15.10 - 17.00', title: '7. & 8. Ders Oturumu', label: '7. & 8. Ders Oturumu', detail: 'İkindi ders & ofis saatleri', type: 'lesson' },
+    { id: 'slot-7', slot: '17:10 - 18:10', time: '17.10 - 18.10', title: 'Akşam / Seçmeli Ders Kapanış Oturumu', label: '9. Ders (Kapanış)', detail: 'Gün sonu ders bitişi (18.00 - 18.10)', type: 'lesson' },
+  ],
+};
+
+export const STUDENT_AFFAIRS_INFO = {
+  unitName: 'ABÜ Öğrenci İşleri Daire Başkanlığı',
+  location: 'A-Blok Zemin Kat • Banko 1-4',
+  workHours: '09:00 - 17:30 (Hafta İçi)',
+  workingHours: '09.00 - 17.30',
+  lunchBreak: '11:40 - 12:20',
+  lunchBreakHours: '11.40 - 12.20',
+  lunchBreakClosedBadge: 'Öğle arasında kapalıdır',
+  lunchBreakClosedNote:
+    'Öğrenci İşleri 11.40 - 12.20 saatleri arasında öğle arasında kapalıdır. Banko işlemleri 12.20 itibarıyla devam etmektedir.',
+  lunchClosedMessage: 'Öğle arasında kapalıdır (11:40 - 12:20)',
+  lunchClosedDetail:
+    'Öğrenci İşleri personeli 11:40 – 12:20 saatleri arasında öğle molasındadır. Banko işlemleri 12:20 itibarıyla tekrar açılır.',
+  openMessage: 'Bankolar Açık • İşlem Alınıyor',
+  openDetail:
+    'Öğrenci belgesi, transkript, ders kayıt, staj evrakı ve KampüsKart işlemleri için sıra numarası alabilirsiniz.',
+  phone: '0312 920 11 00 (Dahili: 1104)',
+  email: 'ogrenciisleri@ankarabilim.edu.tr',
+  services: [
+    'Islak İmzalı Transkript & Öğrenci Belgesi',
+    'Erasmus & Staj Zorunluluk Belgesi Onayı',
+    'Ders Ekle-Bırak / Mazeret Sınavı Dilekçe Kaydı',
+    'KampüsKart Kayıp & Yenileme İşlemleri',
+  ],
+};
+
+// 2. Akademik Kadro & Hocaların Ofis Saatleri (Departmanlara Göre Filtrelenebilir)
+export const PROFESSOR_OFFICE_HOURS = [
+  {
+    id: 'prof-1',
+    name: 'Doç. Dr. Kerem Aydın',
+    title: 'Bölüm Başkanı',
+    department: 'Yönetim Bilişim Sistemleri (MIS)',
+    officeLocation: 'A-Blok 3. Kat • Oda 308',
+    officeRoom: 'A-Blok 3. Kat • Oda 308',
+    officeDays: 'Salı & Perşembe',
+    officeTime: '13:30 - 15:30',
+    officeHours: '13.30 - 15.30',
+    email: 'kerem.aydin@ankarabilim.edu.tr',
+    topics: 'Veri Bilimi, ERP Sistemleri, Bitirme Projesi Danışmanlığı',
+    lunchNote: '11.40 - 12.20 öğle arasında ofiste bulunmamaktadır.',
+  },
+  {
+    id: 'prof-2',
+    name: 'Dr. Öğr. Üyesi Selin Yalçın',
+    title: 'Akademik Danışman',
+    department: 'Yönetim Bilişim Sistemleri (MIS)',
+    officeLocation: 'A-Blok 3. Kat • Oda 312',
+    officeRoom: 'A-Blok 3. Kat • Oda 312',
+    officeDays: 'Pazartesi & Çarşamba',
+    officeTime: '10:00 - 11:30 / 14:00 - 15:30',
+    officeHours: '10.00 - 11.30 / 14.00 - 15.30',
+    email: 'selin.yalcin@ankarabilim.edu.tr',
+    topics: 'İş Analitiği, Dijital Dönüşüm, Erasmus Bölüm Koordinasyonu',
+    lunchNote: '11.40 - 12.20 öğle arasında ofiste bulunmamaktadır.',
+  },
+  {
+    id: 'prof-3',
+    name: 'Prof. Dr. Murat Demirtaş',
+    title: 'Fakülte Üyesi',
+    department: 'Yazılım & Bilgisayar Müh.',
+    officeLocation: 'A-Blok 4. Kat • Oda 404',
+    officeRoom: 'A-Blok 4. Kat • Oda 404',
+    officeDays: 'Salı & Cuma',
+    officeTime: '14:00 - 16:30',
+    officeHours: '14.00 - 16.30',
+    email: 'murat.demirtas@ankarabilim.edu.tr',
+    topics: 'Algoritmalar, Yapay Zeka Mimarileri, ÇAP/Yandal Danışmanlığı',
+    lunchNote: '11.40 - 12.20 öğle arasında ofiste bulunmamaktadır.',
+  },
+  {
+    id: 'prof-4',
+    name: 'Dr. Öğr. Üyesi Emre Karahan',
+    title: 'Lab Koordinatörü',
+    department: 'Elektrik-Elektronik & Endüstri Müh.',
+    officeLocation: 'A-Blok 4. Kat • Oda 415',
+    officeRoom: 'A-Blok 4. Kat • Oda 415',
+    officeDays: 'Çarşamba & Perşembe',
+    officeTime: '09:30 - 11:30',
+    officeHours: '09.30 - 11.30',
+    email: 'emre.karahan@ankarabilim.edu.tr',
+    topics: 'Gömülü Sistemler, IoT, IEEE Akademik Danışmanlığı',
+    lunchNote: '11.40 - 12.20 öğle arasında ofiste bulunmamaktadır.',
+  },
+  {
+    id: 'prof-5',
+    name: 'Doç. Dr. Deniz Soylu',
+    title: 'Stüdyo Yürütücüsü',
+    department: 'İç Mimarlık & Tasarım',
+    officeLocation: 'B-Blok 2. Kat • Oda 209',
+    officeRoom: 'B-Blok 2. Kat • Oda 209',
+    officeDays: 'Pazartesi & Perşembe',
+    officeTime: '13:00 - 15:00',
+    officeHours: '13.00 - 15.00',
+    email: 'deniz.soylu@ankarabilim.edu.tr',
+    topics: 'Sürdürülebilir Mekan Tasarımı, Portfolyo Değerlendirmesi',
+    lunchNote: '11.40 - 12.20 öğle arasında ofiste bulunmamaktadır.',
+  },
+  {
+    id: 'prof-6',
+    name: 'Dr. Öğr. Üyesi Ceren Aksoy',
+    title: 'Öğretim Üyesi',
+    department: 'Psikoloji & İTBF',
+    officeLocation: 'B-Blok 3. Kat • Oda 302',
+    officeRoom: 'B-Blok 3. Kat • Oda 302',
+    officeDays: 'Salı & Çarşamba',
+    officeTime: '15:00 - 17:00',
+    officeHours: '15.00 - 17.00',
+    email: 'ceren.aksoy@ankarabilim.edu.tr',
+    topics: 'Bilişsel Psikoloji, Araştırma Yöntemleri, Tez Görüşmeleri',
+    lunchNote: '11.40 - 12.20 öğle arasında ofiste bulunmamaktadır.',
+  },
+];
+
+// 3. Acil Revir / Sağlık Yardımı Bilgileri
+export const EMERGENCY_INFIRMARY_INFO = {
+  title: 'ABÜ Acil Revir & Kampüs Sağlık Yardımı',
+  subtitle: 'Revir görevlisi yerinde olmadığında veya acil müdahale gerektiğinde doğrudan arayın',
+  location: 'A-Blok Zemin Kat • Revir ve İlk Yardım Odası (Danışma Yanı)',
+  nurseName: 'Hemşire Ayşe Yılmaz (ABÜ Kampüs Sağlık Görevlisi)',
+  directPhone: '+903129201112',
+  directPhoneDisplay: '0312 920 11 12 (Dahili: 1112)',
+  mobileDutyPhone: '+905309201112',
+  mobileEmergencyRaw: '+905309201112',
+  mobileDutyDisplay: '0530 920 11 12 (Nöbetçi Sağlık Görevlisi Cep)',
+  securityDeskDisplay: '0312 920 11 99 (Kampüs Güvenlik & İlk Yardım Destek)',
+  procedures: [
+    '1. Revir kapısı kapalıysa vakit kaybetmeden yukarıdaki "Nöbetçi Sağlık Görevlisini Ara" butonuna dokunun; görevli kampüs içinde nöbette olabilir ve hemen yönlendirilir.',
+    '2. Bulunduğunuz katı veya bahçe noktasını (Örn: A-Blok 3. Kat, Coffee Hub Önü, Kütüphane) net şekilde belirtin.',
+    '3. Bayılma, ciddi yaralanma veya alerjik reaksiyon durumunda hem Kampüs Güvenliği (Dahili 1199) hem de 112 Acil Çağrı Merkezi eşzamanlı bilgilendirilir.',
+    '4. Acil İlk Yardım Çantaları: A-Blok Giriş Danışma, Merkez Kütüphane Bankosu ve B-Blok Stüdyo Katında mevcuttur.',
+  ],
+};
 
 // 4. Yürüyen Merdiven Canlı Alarm Durumu
 export const INITIAL_ESCALATOR_STATE = {
