@@ -1,13 +1,13 @@
 {
-  "name": "Camp’Us - Üniversite Kampüs Yaşamı ve Sosyal İletişim Platformu",
-  "short_name": "Camp’Us",
-  "description": "Üniversite öğrencilerinin kampüs içi tüm ihtiyaçlarını ve ortak öğrenci ağını tek bir yerden takip edebileceği mobil öncelikli PWA platformu.",
+  "name": "Camp’Us ABÜ - Ankara Bilim Üniversitesi Kampüs Yaşamı & Sosyal Ağ",
+  "short_name": "Camp’Us ABÜ",
+  "description": "Ankara Bilim Üniversitesi (ABÜ) öğrencilerine özel takip şartsız ortak kampüs ağı, canlı merdiven & kütüphane durumu, MigrosJet/Coffee Hub fırsatları ve güvenlik bildirim platformu.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#F8FAFC",
-  "theme_color": "#4F46E5",
+  "orientation": "portrait-primary",
+  "background_color": "#1D3534",
+  "theme_color": "#142E2C",
   "categories": ["education", "social", "lifestyle"],
   "icons": [
     {

@@ -8,6 +8,7 @@ import {
   PenLine,
   Users,
   Hash,
+  Award,
 } from 'lucide-react';
 import { MOOD_OPTIONS, STATUS_OPTIONS } from '../data/mockCampusData';
 
@@ -22,9 +23,9 @@ export default function SocialFeedTab({
   const [selectedMood, setSelectedMood] = useState(MOOD_OPTIONS[0]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [tagInput, setTagInput] = useState('#KampüsGünlüğü #CampUs');
+  const [tagInput, setTagInput] = useState('#ABÜ #CampUs #MaltepeKampüs');
   const [commentInputs, setCommentInputs] = useState({});
-  const [openCommentsFor, setOpenCommentsFor] = useState(['post-1']);
+  const [openCommentsFor, setOpenCommentsFor] = useState(['post-1', 'post-2']);
   const [moodFilter, setMoodFilter] = useState('Tümü');
 
   const handlePublishPost = (e) => {
@@ -43,14 +44,15 @@ export default function SocialFeedTab({
       authorEmail: currentUser.email,
       department: `${currentUser.department} • ${currentUser.grade || 'Lisans'}`,
       authorInitials: currentUser.initials,
-      avatarBg: currentUser.avatarBg || 'from-indigo-600 to-sky-500',
+      avatarBg: currentUser.avatarBg || 'from-[#142E2C] to-[#3A5A58]',
       authorStatus: currentUser.status,
+      authorBadges: currentUser.titleBadges || [],
       mood: selectedMood,
       title:
         title.trim() ||
         `${selectedMood.emoji} ${currentUser.name} Kampüs Düşüncesi`,
       content: content.trim(),
-      tags: parsedTags.length ? parsedTags : ['#CampUs'],
+      tags: parsedTags.length ? parsedTags : ['#ABÜ'],
       createdAt: 'Az önce',
       likes: 1,
       likedByMe: true,
@@ -68,6 +70,7 @@ export default function SocialFeedTab({
     onAddComment(postId, {
       id: `c-${Date.now()}`,
       authorName: currentUser.name,
+      authorBadge: currentUser.titleBadges?.[0] || null,
       department: currentUser.department,
       text,
       time: 'Şimdi',
@@ -96,116 +99,118 @@ export default function SocialFeedTab({
       : posts.filter((p) => p.mood?.label === moodFilter);
 
   return (
-    <div className="space-y-5 pb-6">
-      {/* 1. YENİ BLOG YAZISI & DUYGU DURUMU PAYLAŞIM KARTI */}
-      <section className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-100 shadow-soft space-y-4">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-              <PenLine className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-sm sm:text-base font-extrabold text-slate-900">
-                Kampüs Blog & Duygu Durumu Paylaş
-              </h2>
-              <p className="text-xs text-slate-500">
-                Ortak ağdaki tüm okul arkadaşların takip şartı olmadan paylaşımını görür
-              </p>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pb-10">
+      {/* Left 5 Cols on Desktop: Compose Blog Post + User Badges Card */}
+      <div className="lg:col-span-5 space-y-4">
+        <section className="glass-card rounded-[32px] p-5 space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-[#142E2C] text-[#FF8A3D] flex items-center justify-center shrink-0">
+                <PenLine className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-black text-[#142E2C]">
+                  ABÜ Sosyal Akış & Blog Paylaş
+                </h2>
+                <p className="text-xs text-[#3A5A58] font-medium">
+                  Görev rozetlerin ve duygu durumunla ortak ağda paylaş
+                </p>
+              </div>
             </div>
           </div>
 
-          {(() => {
-            const st = getStatusMeta(currentUser.status);
-            return (
-              <span
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0 ${st.badgeClass}`}
-              >
-                {st.emoji} {st.label}
+          {/* Active User Title Badges Preview */}
+          {currentUser.titleBadges?.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 p-2.5 rounded-2xl glass-tile">
+              <span className="text-[10px] font-black uppercase text-[#3A5A58] mr-1">
+                Aktif Unvanların:
               </span>
-            );
-          })()}
-        </div>
-
-        <form onSubmit={handlePublishPost} className="space-y-3">
-          {/* Mood / Emoji Tag Selector */}
-          <div>
-            <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
-              <SmilePlus className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Şu Anki Duygu Durumunu Seç (Emoji / Etiket):</span>
-            </label>
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-              {MOOD_OPTIONS.map((mood) => {
-                const active = selectedMood.id === mood.id;
-                return (
-                  <button
-                    key={mood.id}
-                    type="button"
-                    onClick={() => setSelectedMood(mood)}
-                    className={`px-3 py-1.5 rounded-2xl border text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition ${
-                      active
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm scale-[1.02]'
-                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span className="text-sm">{mood.emoji}</span>
-                    <span>{mood.label}</span>
-                  </button>
-                );
-              })}
+              {currentUser.titleBadges.map((badge) => (
+                <span
+                  key={badge}
+                  className="px-2.5 py-0.5 rounded-full bg-[#FF8A3D] text-white text-[10px] font-black"
+                >
+                  🏅 {badge}
+                </span>
+              ))}
             </div>
-          </div>
+          )}
 
-          {/* Blog Title */}
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Kısa blog başlığı (Örn: Kütüphane 3. Katta Gece Çalışması ve Kahve...)"
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 transition"
-          />
+          <form onSubmit={handlePublishPost} className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#3A5A58] mb-1.5 flex items-center gap-1">
+                <SmilePlus className="w-3.5 h-3.5 text-[#FF8A3D]" />
+                <span>Duygu Durumu Seç:</span>
+              </label>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                {MOOD_OPTIONS.map((mood) => {
+                  const active = selectedMood.id === mood.id;
+                  return (
+                    <button
+                      key={mood.id}
+                      type="button"
+                      onClick={() => setSelectedMood(mood)}
+                      className={`px-3 py-1.5 rounded-2xl border text-xs font-extrabold whitespace-nowrap flex items-center gap-1.5 transition ${
+                        active
+                          ? 'bg-[#142E2C] text-white border-[#142E2C] shadow-sm'
+                          : 'bg-white/75 text-[#142E2C] border-[#142E2C]/15 hover:bg-white'
+                      }`}
+                    >
+                      <span>{mood.emoji}</span>
+                      <span>{mood.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-          {/* Blog / Campus Thought Content */}
-          <textarea
-            rows={3}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={`Bugün kampüste neler oluyor, ${currentUser.name.split(' ')[0]}? Düşüncelerini, ders notlarını veya kampüs anını paylaş...`}
-            className="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 transition"
-          />
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Blog Başlığı (Örn: Bahçede Coffee Hub Molası & MIS Zirvesi...)"
+              className="w-full px-3.5 py-2.5 rounded-2xl bg-white/85 border border-[#142E2C]/15 text-xs font-bold text-[#142E2C]"
+            />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
-            <div className="relative flex-1">
-              <Hash className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <textarea
+              rows={3}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder={`ABÜ kampüsünde bugün neler oluyor, ${currentUser.name.split(' ')[0]}?`}
+              className="w-full p-3.5 rounded-2xl bg-white/85 border border-[#142E2C]/15 text-xs text-[#142E2C]"
+            />
+
+            <div className="relative">
+              <Hash className="w-3.5 h-3.5 text-[#3A5A58] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="#Etiketler"
-                className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-medium text-indigo-700 focus:outline-none focus:border-indigo-500"
+                className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white/85 border border-[#142E2C]/15 text-[11px] font-bold text-[#142E2C]"
               />
             </div>
 
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-extrabold shadow-md shadow-indigo-500/20 inline-flex items-center justify-center gap-2 transition shrink-0"
+              className="w-full py-3 px-4 rounded-2xl bg-[#FF8A3D] hover:bg-[#E66B1F] text-white text-xs font-black shadow-md flex items-center justify-center gap-2 transition"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Ortak Kampüs Akışında Paylaş</span>
+              <span>ABÜ Ortak Kampüs Akışında Paylaş</span>
             </button>
-          </div>
-        </form>
-      </section>
+          </form>
+        </section>
+      </div>
 
-      {/* 2. DUYGU DURUMU FİLTRESİ & ORTAK AĞ BİLGİSİ */}
-      <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
-        <div className="flex items-center gap-1.5">
+      {/* Right 7 Cols on Desktop: Social Feed Stream */}
+      <div className="lg:col-span-7 space-y-4">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
           <button
             type="button"
             onClick={() => setMoodFilter('Tümü')}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-black whitespace-nowrap border transition ${
               moodFilter === 'Tümü'
-                ? 'bg-slate-900 text-white border-slate-900'
-                : 'bg-white text-slate-600 border-slate-200'
+                ? 'bg-[#142E2C] text-white border-[#142E2C]'
+                : 'bg-white/80 text-[#142E2C] border-white/60'
             }`}
           >
             🌐 Tüm Akış ({posts.length})
@@ -215,209 +220,221 @@ export default function SocialFeedTab({
               key={m.id}
               type="button"
               onClick={() => setMoodFilter(m.label)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition ${
+              className={`px-3 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap border transition ${
                 moodFilter === m.label
-                  ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  ? 'bg-[#FF8A3D] text-white border-[#FF8A3D]'
+                  : 'bg-white/80 text-[#142E2C] border-white/60'
               }`}
             >
               {m.emoji} {m.label}
             </button>
           ))}
         </div>
-      </div>
 
-      {/* 3. SOSYAL AKIŞ (FEED) KARTLARI */}
-      <div className="space-y-4">
-        {filteredPosts.map((post) => {
-          const authorStatusMeta = getStatusMeta(post.authorStatus);
-          const commentsOpen = openCommentsFor.includes(post.id);
+        <div className="space-y-4">
+          {filteredPosts.map((post) => {
+            const authorStatusMeta = getStatusMeta(post.authorStatus);
+            const commentsOpen = openCommentsFor.includes(post.id);
 
-          return (
-            <article
-              key={post.id}
-              className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-100 shadow-soft space-y-3.5"
-            >
-              {/* Author & Mood + Live Campus Status Header */}
-              <div className="flex items-start justify-between gap-3">
-                <div
-                  onClick={() =>
-                    onOpenNetworkModal({
-                      id: post.id,
-                      name: post.authorName,
-                      email: post.authorEmail,
-                      department: post.department,
-                      status: post.authorStatus,
-                      initials: post.authorInitials,
-                      avatarBg: post.avatarBg,
-                    })
-                  }
-                  className="cursor-pointer flex items-center gap-3 group"
-                >
+            return (
+              <article
+                key={post.id}
+                className="glass-card rounded-[32px] p-5 space-y-3.5"
+              >
+                <div className="flex items-start justify-between gap-3">
                   <div
-                    className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${
-                      post.avatarBg || 'from-indigo-500 to-sky-500'
-                    } text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-sm`}
+                    onClick={() =>
+                      onOpenNetworkModal({
+                        id: post.id,
+                        name: post.authorName,
+                        email: post.authorEmail,
+                        department: post.department,
+                        status: post.authorStatus,
+                        titleBadges: post.authorBadges || [],
+                        initials: post.authorInitials,
+                        avatarBg: post.avatarBg,
+                      })
+                    }
+                    className="cursor-pointer flex items-start gap-3 group"
                   >
-                    {post.authorInitials}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition">
-                        {post.authorName}
-                      </h3>
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${authorStatusMeta.badgeClass}`}
-                      >
-                        <span>{authorStatusMeta.emoji}</span>
-                        <span>{authorStatusMeta.label}</span>
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500">
-                      {post.department} • {post.createdAt}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Mood Badge */}
-                {post.mood && (
-                  <span
-                    className={`px-2.5 py-1 rounded-2xl text-[11px] font-extrabold border shrink-0 flex items-center gap-1 ${
-                      post.mood.color ||
-                      'bg-indigo-50 text-indigo-700 border-indigo-200'
-                    }`}
-                  >
-                    <span>{post.mood.emoji}</span>
-                    <span>{post.mood.label}</span>
-                  </span>
-                )}
-              </div>
-
-              {/* Blog Post Title & Body */}
-              <div className="space-y-1.5">
-                {post.title && (
-                  <h4 className="text-sm sm:text-base font-extrabold text-slate-900">
-                    {post.title}
-                  </h4>
-                )}
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                  {post.content}
-                </p>
-              </div>
-
-              {/* Tags */}
-              {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {post.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 py-0.5 rounded-lg bg-slate-100 text-indigo-600 text-[11px] font-bold"
+                    <div
+                      className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${
+                        post.avatarBg || 'from-[#142E2C] to-[#3A5A58]'
+                      } text-white font-black text-sm flex items-center justify-center shrink-0 shadow-sm`}
                     >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Like & Comment Action Bar */}
-              <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onToggleLike(post.id)}
-                    className={`px-3.5 py-1.5 rounded-2xl text-xs font-extrabold inline-flex items-center gap-1.5 border transition ${
-                      post.likedByMe
-                        ? 'bg-rose-50 text-rose-600 border-rose-200 shadow-sm'
-                        : 'bg-slate-50 hover:bg-rose-50/50 text-slate-600 border-slate-200'
-                    }`}
-                  >
-                    <Heart
-                      className={`w-4 h-4 ${
-                        post.likedByMe
-                          ? 'fill-rose-500 text-rose-500'
-                          : 'text-slate-500'
-                      }`}
-                    />
-                    <span>{post.likes} Beğeni</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => toggleCommentsSection(post.id)}
-                    className="px-3.5 py-1.5 rounded-2xl bg-slate-50 hover:bg-indigo-50/50 text-slate-600 border border-slate-200 text-xs font-extrabold inline-flex items-center gap-1.5 transition"
-                  >
-                    <MessageCircle className="w-4 h-4 text-indigo-500" />
-                    <span>{post.comments.length} Yorum</span>
-                  </button>
-                </div>
-
-                <span className="text-[10px] font-semibold text-slate-400 inline-flex items-center gap-1">
-                  <Users className="w-3 h-3" />
-                  Ortak Ağda Açık
-                </span>
-              </div>
-
-              {/* Comments Section */}
-              {commentsOpen && (
-                <div className="pt-2 space-y-2.5">
-                  {post.comments.length > 0 && (
-                    <div className="space-y-2 bg-slate-50/90 p-3 rounded-2xl border border-slate-100">
-                      {post.comments.map((c) => (
-                        <div
-                          key={c.id}
-                          className="text-xs bg-white p-2.5 rounded-xl border border-slate-100 space-y-0.5"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="font-extrabold text-slate-800">
-                              {c.authorName}{' '}
-                              <span className="font-normal text-[10px] text-slate-400">
-                                ({c.department})
-                              </span>
-                            </span>
-                            <span className="text-[10px] text-slate-400">
-                              {c.time}
-                            </span>
-                          </div>
-                          <p className="text-slate-600">{c.text}</p>
-                        </div>
-                      ))}
+                      {post.authorInitials}
                     </div>
-                  )}
+                    <div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="text-xs sm:text-sm font-black text-[#142E2C] group-hover:text-[#FF8A3D] transition">
+                          {post.authorName}
+                        </h3>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${authorStatusMeta.badgeClass}`}
+                        >
+                          <span>{authorStatusMeta.emoji}</span>
+                          <span>{authorStatusMeta.label}</span>
+                        </span>
+                      </div>
 
-                  {/* Add Comment Input */}
+                      {/* Colorful Title Badges Next to Author Name */}
+                      {post.authorBadges && post.authorBadges.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {post.authorBadges.map((badge, idx) => (
+                            <span
+                              key={badge}
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                                idx === 0
+                                  ? 'bg-[#FF8A3D] text-white'
+                                  : 'bg-[#142E2C] text-[#A9C6C1]'
+                              }`}
+                            >
+                              🏅 {badge}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <p className="text-[11px] text-[#3A5A58] font-medium mt-0.5">
+                        {post.department} • {post.createdAt}
+                      </p>
+                    </div>
+                  </div>
+
+                  {post.mood && (
+                    <span
+                      className={`px-2.5 py-1 rounded-2xl text-[11px] font-black border shrink-0 flex items-center gap-1 ${post.mood.color}`}
+                    >
+                      <span>{post.mood.emoji}</span>
+                      <span className="hidden sm:inline">{post.mood.label}</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  {post.title && (
+                    <h4 className="text-sm sm:text-base font-black text-[#142E2C]">
+                      {post.title}
+                    </h4>
+                  )}
+                  <p className="text-xs sm:text-sm text-[#1D3534] leading-relaxed">
+                    {post.content}
+                  </p>
+                </div>
+
+                {post.tags && post.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {post.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="px-2.5 py-0.5 rounded-lg bg-[#142E2C]/10 text-[#142E2C] text-[11px] font-extrabold"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="pt-2.5 border-t border-[#142E2C]/10 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={commentInputs[post.id] || ''}
-                      onChange={(e) =>
-                        setCommentInputs((prev) => ({
-                          ...prev,
-                          [post.id]: e.target.value,
-                        }))
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleCommentSubmit(post.id);
-                        }
-                      }}
-                      placeholder="Bu paylaşıma yorum bırak..."
-                      className="flex-1 px-3.5 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
-                    />
                     <button
                       type="button"
-                      onClick={() => handleCommentSubmit(post.id)}
-                      className="p-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white transition shrink-0"
-                      title="Yorum Gönder"
+                      onClick={() => onToggleLike(post.id)}
+                      className={`px-3.5 py-1.5 rounded-2xl text-xs font-black inline-flex items-center gap-1.5 border transition ${
+                        post.likedByMe
+                          ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                          : 'bg-white/75 text-[#142E2C] border-[#142E2C]/15'
+                      }`}
                     >
-                      <Send className="w-4 h-4" />
+                      <Heart
+                        className={`w-4 h-4 ${
+                          post.likedByMe ? 'fill-white text-white' : ''
+                        }`}
+                      />
+                      <span>{post.likes} Beğeni</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleCommentsSection(post.id)}
+                      className="px-3.5 py-1.5 rounded-2xl bg-white/75 text-[#142E2C] border border-[#142E2C]/15 text-xs font-black inline-flex items-center gap-1.5"
+                    >
+                      <MessageCircle className="w-4 h-4 text-[#FF8A3D]" />
+                      <span>{post.comments.length} Yorum</span>
                     </button>
                   </div>
+
+                  <span className="text-[10px] font-bold text-[#3A5A58]">
+                    ABÜ Ortak Ağda Açık
+                  </span>
                 </div>
-              )}
-            </article>
-          );
-        })}
+
+                {commentsOpen && (
+                  <div className="pt-2 space-y-2.5">
+                    {post.comments.length > 0 && (
+                      <div className="space-y-2 p-3 rounded-2xl glass-tile">
+                        {post.comments.map((c) => (
+                          <div
+                            key={c.id}
+                            className="text-xs bg-white/85 p-2.5 rounded-xl space-y-1"
+                          >
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-black text-[#142E2C]">
+                                  {c.authorName}
+                                </span>
+                                {c.authorBadge && (
+                                  <span className="px-2 py-0.5 rounded-full bg-[#FF8A3D] text-white text-[9px] font-black">
+                                    🏅 {c.authorBadge}
+                                  </span>
+                                )}
+                                <span className="text-[10px] text-[#3A5A58]">
+                                  ({c.department})
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-[#3A5A58]">
+                                {c.time}
+                              </span>
+                            </div>
+                            <p className="text-[#1D3534]">{c.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={commentInputs[post.id] || ''}
+                        onChange={(e) =>
+                          setCommentInputs((prev) => ({
+                            ...prev,
+                            [post.id]: e.target.value,
+                          }))
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleCommentSubmit(post.id);
+                          }
+                        }}
+                        placeholder="Yorum bırak..."
+                        className="flex-1 px-3.5 py-2 rounded-2xl bg-white/85 border border-[#142E2C]/15 text-xs text-[#142E2C]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleCommentSubmit(post.id)}
+                        className="p-2.5 rounded-2xl bg-[#142E2C] hover:bg-[#FF8A3D] text-white transition"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

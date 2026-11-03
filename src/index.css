@@ -5,12 +5,44 @@
 @layer base {
   html,
   body {
-    background: linear-gradient(165deg, #F4F7FB 0%, #EEF2FF 50%, #F0F9FF 100%);
+    background:
+      radial-gradient(circle at 12% 14%, rgba(169, 198, 193, 0.35) 0%, transparent 42%),
+      radial-gradient(circle at 88% 18%, rgba(255, 138, 61, 0.18) 0%, transparent 38%),
+      radial-gradient(circle at 50% 90%, rgba(107, 142, 136, 0.35) 0%, transparent 48%),
+      linear-gradient(155deg, #3A5A58 0%, #6B8E88 48%, #1D3534 100%);
     background-attachment: fixed;
-    color: #1E293B;
-    color-scheme: light;
+    color: #142E2C;
+    min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer components {
+  /* Frosted Glass Card Surface (Light Cream/White Glass) */
+  .glass-card {
+    background: rgba(246, 250, 249, 0.78);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.62);
+    box-shadow: 0 16px 40px -8px rgba(15, 36, 34, 0.16), inset 0 1px 1px 0 rgba(255, 255, 255, 0.65);
+  }
+
+  /* Soft Inner Glass Tile */
+  .glass-tile {
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+  }
+
+  /* Deep Petrol Frosted Glass Card */
+  .glass-petrol {
+    background: linear-gradient(145deg, rgba(20, 46, 44, 0.90) 0%, rgba(29, 53, 52, 0.86) 100%);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 20px 44px -10px rgba(9, 22, 21, 0.40), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
   }
 }
 
@@ -19,10 +51,10 @@
   padding-bottom: env(safe-area-inset-bottom, 0.75rem);
 }
 
-/* Smooth custom scrollbar */
+/* Custom sleek scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -30,10 +62,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(79, 70, 229, 0.18);
+  background: rgba(20, 46, 44, 0.28);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 70, 229, 0.35);
+  background: rgba(20, 46, 44, 0.48);
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Users,
@@ -7,8 +7,13 @@ import {
   GraduationCap,
   Search,
   Sparkles,
+  Award,
+  Plus,
 } from 'lucide-react';
-import { STATUS_OPTIONS } from '../data/mockCampusData';
+import {
+  STATUS_OPTIONS,
+  AVAILABLE_TITLE_BADGES,
+} from '../data/mockCampusData';
 
 export default function CampusNetworkModal({
   isOpen,
@@ -16,12 +21,18 @@ export default function CampusNetworkModal({
   students,
   currentUser,
   onUpdateMyStatus,
+  onUpdateMyBadges,
   feedPosts = [],
   initialSelectedStudent = null,
 }) {
   const [statusFilter, setStatusFilter] = useState('Tümü');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(initialSelectedStudent);
+  const [customBadgeText, setCustomBadgeText] = useState('');
+
+  useEffect(() => {
+    setSelectedStudent(initialSelectedStudent);
+  }, [initialSelectedStudent]);
 
   if (!isOpen) return null;
 
@@ -37,7 +48,8 @@ export default function CampusNetworkModal({
       !q ||
       stu.name.toLowerCase().includes(q) ||
       stu.department.toLowerCase().includes(q) ||
-      stu.email.toLowerCase().includes(q);
+      stu.email.toLowerCase().includes(q) ||
+      (stu.titleBadges || []).some((b) => b.toLowerCase().includes(q));
     return matchesStatus && matchesQuery;
   });
 
@@ -45,7 +57,9 @@ export default function CampusNetworkModal({
     STATUS_OPTIONS.find((s) => s.id === statusId) || STATUS_OPTIONS[0];
 
   const activeProfile = selectedStudent
-    ? allNetworkStudents.find((s) => s.id === selectedStudent.id || s.email === selectedStudent.email) || selectedStudent
+    ? allNetworkStudents.find(
+        (s) => s.id === selectedStudent.id || s.email === selectedStudent.email
+      ) || selectedStudent
     : null;
 
   const studentPosts = activeProfile
@@ -56,98 +70,135 @@ export default function CampusNetworkModal({
       )
     : [];
 
+  const handleToggleBadge = (badgeLabel) => {
+    const currentBadges = currentUser.titleBadges || [];
+    const nextBadges = currentBadges.includes(badgeLabel)
+      ? currentBadges.filter((b) => b !== badgeLabel)
+      : [...currentBadges, badgeLabel];
+    onUpdateMyBadges(nextBadges);
+  };
+
+  const handleAddCustomBadge = (e) => {
+    e.preventDefault();
+    const cleaned = customBadgeText.trim();
+    if (!cleaned) return;
+    const currentBadges = currentUser.titleBadges || [];
+    if (!currentBadges.includes(cleaned)) {
+      onUpdateMyBadges([...currentBadges, cleaned]);
+    }
+    setCustomBadgeText('');
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/55 backdrop-blur-sm p-0 sm:p-4">
-      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0B1C1B]/65 backdrop-blur-md p-0 sm:p-4">
+      <div className="glass-card w-full max-w-xl rounded-t-[32px] sm:rounded-[32px] border border-white/60 max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-5 pt-5 pb-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-900 text-white relative">
+        <div className="px-6 pt-5 pb-4 bg-gradient-to-r from-[#142E2C] via-[#1D3534] to-[#3A5A58] text-white relative">
           <button
             type="button"
             onClick={() => {
               setSelectedStudent(null);
               onClose();
             }}
-            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition"
+            className="absolute right-4 top-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition"
           >
             <X className="w-4 h-4" />
           </button>
 
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-[11px] font-semibold mb-1.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FF8A3D] text-white text-[11px] font-black mb-1.5">
             <Users className="w-3.5 h-3.5" />
-            <span>Takip Et / Takipten Çık Şartı Olmayan Açık Ağ</span>
+            <span>Ankara Bilim Üniversitesi • Takip Şartsız Ortak Ağ</span>
           </div>
-          <h2 className="text-lg font-extrabold">
-            Ortak Kampüs Öğrenci Ağı ({allNetworkStudents.length} Aktif)
+          <h2 className="text-lg sm:text-xl font-black">
+            ABÜ Öğrenci Ağı & Topluluk Görev Rozetleri ({allNetworkStudents.length})
           </h2>
-          <p className="text-xs text-slate-300 mt-0.5">
-            Aynı <span className="text-sky-300 font-semibold">.edu.tr</span> uzantılı tüm öğrenciler birbirinin profilini ve anlık durumunu doğrudan görebilir.
+          <p className="text-xs text-[#A9C6C1] mt-0.5">
+            Aynı okul uzantılı tüm öğrenciler birbirinin profilini, görev rozetlerini ve durumunu doğrudan görür.
           </p>
         </div>
 
         {/* Body */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+        <div className="p-5 overflow-y-auto space-y-4 flex-1">
           {activeProfile ? (
-            /* Detailed Student Profile View (No follow button, direct open access) */
             <div className="space-y-4">
               <button
                 type="button"
                 onClick={() => setSelectedStudent(null)}
-                className="text-xs font-bold text-indigo-600 hover:text-indigo-700 inline-flex items-center gap-1"
+                className="text-xs font-black text-[#142E2C] hover:text-[#FF8A3D] inline-flex items-center gap-1"
               >
-                ← Tüm Kampüs Ağına Dön
+                ← Tüm ABÜ Öğrenci Ağına Dön
               </button>
 
-              <div className="p-5 rounded-3xl bg-gradient-to-br from-slate-50 to-indigo-50/50 border border-indigo-100 space-y-4">
+              <div className="p-5 rounded-3xl glass-tile space-y-4">
                 <div className="flex items-start gap-3.5">
                   <div
                     className={`w-16 h-16 rounded-3xl bg-gradient-to-br ${
-                      activeProfile.avatarBg || 'from-indigo-600 to-sky-500'
-                    } text-white font-extrabold text-xl flex items-center justify-center shadow-md shrink-0`}
+                      activeProfile.avatarBg || 'from-[#142E2C] to-[#3A5A58]'
+                    } text-white font-black text-xl flex items-center justify-center shadow-md shrink-0`}
                   >
                     {activeProfile.initials}
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-base font-extrabold text-slate-900">
+                      <h3 className="text-base font-black text-[#142E2C]">
                         {activeProfile.name}
                       </h3>
                       {activeProfile.email === currentUser.email && (
-                        <span className="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-bold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#142E2C] text-white text-[10px] font-black">
                           Senin Profilin
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-semibold text-indigo-600 flex items-center gap-1 mt-0.5">
-                      <GraduationCap className="w-3.5 h-3.5" />
+
+                    {/* Title Badges on Profile */}
+                    {activeProfile.titleBadges && activeProfile.titleBadges.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 py-0.5">
+                        {activeProfile.titleBadges.map((b, idx) => (
+                          <span
+                            key={b}
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                              idx === 0
+                                ? 'bg-[#FF8A3D] text-white'
+                                : 'bg-[#142E2C] text-[#A9C6C1]'
+                            }`}
+                          >
+                            🏅 {b}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <p className="text-xs font-extrabold text-[#3A5A58] flex items-center gap-1">
+                      <GraduationCap className="w-3.5 h-3.5 text-[#FF8A3D]" />
                       <span>
                         {activeProfile.department} • {activeProfile.grade || 'Lisans'}
                       </span>
                     </p>
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                    <p className="text-[11px] text-[#3A5A58] flex items-center gap-1">
                       <Mail className="w-3 h-3" />
                       <span>{activeProfile.email}</span>
                     </p>
                   </div>
                 </div>
 
-                {/* Current Live Status Badge */}
+                {/* Live Status */}
                 {(() => {
                   const st = getStatusMeta(activeProfile.status);
                   return (
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-white/85 border border-[#142E2C]/10">
                       <div className="flex items-center gap-2.5">
                         <span className="text-xl">{st.emoji}</span>
                         <div>
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                            Anlık Kişisel Durum
+                          <p className="text-[10px] font-black uppercase text-[#3A5A58]">
+                            Anlık Kampüs Durumu
                           </p>
-                          <p className="text-xs font-extrabold text-slate-800">
-                            {st.label} — <span className="font-normal text-slate-500">{st.desc}</span>
+                          <p className="text-xs font-black text-[#142E2C]">
+                            {st.label} — <span className="font-medium text-[#3A5A58]">{st.desc}</span>
                           </p>
                         </div>
                       </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold border ${st.badgeClass}`}
+                        className={`px-3 py-1 rounded-full text-xs font-black border ${st.badgeClass}`}
                       >
                         {st.emoji} {st.label}
                       </span>
@@ -155,93 +206,109 @@ export default function CampusNetworkModal({
                   );
                 })()}
 
-                {/* If viewing own profile, allow instant status switching here too */}
+                {/* If Own Profile: Manage Status & Manage Title Badges */}
                 {activeProfile.email === currentUser.email && (
-                  <div className="space-y-1.5">
-                    <p className="text-[11px] font-bold text-slate-600">
-                      Kişisel Durumunu Güncelle:
-                    </p>
-                    <div className="grid grid-cols-5 gap-1.5">
-                      {STATUS_OPTIONS.map((st) => (
+                  <div className="space-y-3 pt-2 border-t border-[#142E2C]/10">
+                    <div>
+                      <p className="text-xs font-black text-[#142E2C] mb-1.5">
+                        Anlık Kişisel Durumunu Güncelle:
+                      </p>
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {STATUS_OPTIONS.map((st) => (
+                          <button
+                            key={st.id}
+                            type="button"
+                            onClick={() => onUpdateMyStatus(st.id)}
+                            className={`py-2 px-1 rounded-2xl border text-[11px] font-extrabold flex flex-col items-center gap-0.5 transition ${
+                              currentUser.status === st.id
+                                ? 'bg-[#142E2C] text-white border-[#142E2C]'
+                                : 'bg-white text-[#142E2C] border-[#142E2C]/15'
+                            }`}
+                          >
+                            <span>{st.emoji}</span>
+                            <span className="truncate w-full text-center">{st.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Title Badges Manager */}
+                    <div className="p-3.5 rounded-2xl bg-white/85 border border-[#FF8A3D]/35 space-y-2.5">
+                      <p className="text-xs font-black text-[#142E2C] flex items-center gap-1.5">
+                        <Award className="w-4 h-4 text-[#FF8A3D]" />
+                        <span>Topluluk Görev Rozetlerini (Title Badges) Yönet:</span>
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {AVAILABLE_TITLE_BADGES.map((b) => {
+                          const hasBadge = (currentUser.titleBadges || []).includes(
+                            b.label
+                          );
+                          return (
+                            <button
+                              key={b.id}
+                              type="button"
+                              onClick={() => handleToggleBadge(b.label)}
+                              className={`px-2.5 py-1 rounded-full text-[11px] font-black border transition ${
+                                hasBadge
+                                  ? 'bg-[#FF8A3D] text-white border-[#FF8A3D]'
+                                  : 'bg-slate-50 text-[#142E2C] border-[#142E2C]/15'
+                              }`}
+                            >
+                              {hasBadge ? '✓ ' : '+ '}
+                              {b.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <form onSubmit={handleAddCustomBadge} className="flex gap-2 pt-1">
+                        <input
+                          type="text"
+                          value={customBadgeText}
+                          onChange={(e) => setCustomBadgeText(e.target.value)}
+                          placeholder="Özel görev rozeti ekle (Örn: Tiyatro Kulübü Başkanı)"
+                          className="flex-1 px-3 py-1.5 rounded-xl bg-white border border-[#142E2C]/20 text-xs text-[#142E2C]"
+                        />
                         <button
-                          key={st.id}
-                          type="button"
-                          onClick={() => onUpdateMyStatus(st.id)}
-                          className={`py-2 px-1 rounded-2xl border text-[11px] font-bold flex flex-col items-center gap-0.5 transition ${
-                            currentUser.status === st.id
-                              ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                          }`}
+                          type="submit"
+                          className="px-3 py-1.5 rounded-xl bg-[#142E2C] text-white text-xs font-black inline-flex items-center gap-1"
                         >
-                          <span>{st.emoji}</span>
-                          <span className="truncate w-full text-center">{st.label}</span>
+                          <Plus className="w-3.5 h-3.5 text-[#FF8A3D]" />
+                          <span>Ekle</span>
                         </button>
-                      ))}
+                      </form>
                     </div>
                   </div>
                 )}
-
-                {activeProfile.bio && (
-                  <p className="text-xs text-slate-600 leading-relaxed bg-white/80 p-3 rounded-2xl border border-slate-100">
-                    {activeProfile.bio}
-                  </p>
-                )}
-
-                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                  <span className="inline-flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-indigo-500" />
-                    {activeProfile.locationNote || 'Kampüs İçi'}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Ortak Ağda Doğrudan Açık Profil
-                  </span>
-                </div>
               </div>
 
-              {/* Student's Recent Shared Posts */}
+              {/* Student's Posts */}
               <div className="space-y-2">
-                <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                  Öğrencinin Kampüs Akışı Paylaşımları ({studentPosts.length})
+                <h4 className="text-xs font-black uppercase tracking-wider text-[#3A5A58]">
+                  Öğrencinin Kampüs Paylaşımları ({studentPosts.length})
                 </h4>
-                {studentPosts.length === 0 ? (
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-500 text-center">
-                    Henüz blog paylaşımı bulunmuyor, ancak anlık durumu ortak ağda aktif.
+                {studentPosts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="p-3.5 rounded-2xl glass-tile space-y-1"
+                  >
+                    <p className="text-xs font-black text-[#142E2C]">{post.title}</p>
+                    <p className="text-xs text-[#3A5A58]">{post.content}</p>
                   </div>
-                ) : (
-                  studentPosts.map((post) => (
-                    <div
-                      key={post.id}
-                      className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-sm space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-900">{post.title}</span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                          {post.mood?.emoji} {post.mood?.label}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-600 leading-relaxed">{post.content}</p>
-                      <p className="text-[10px] text-slate-400">
-                        {post.createdAt} • {post.likes} beğeni • {post.comments.length} yorum
-                      </p>
-                    </div>
-                  ))
-                )}
+                ))}
               </div>
             </div>
           ) : (
-            /* Directory View of All Campus Students */
             <>
-              {/* Search & Status Filters */}
               <div className="space-y-2.5">
                 <div className="relative">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-[#3A5A58] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Öğrenci adı, bölüm veya .edu.tr e-posta ara..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                    placeholder="Öğrenci adı, bölüm veya görev rozeti ara (Örn: MIS, IEEE)..."
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/85 border border-[#142E2C]/15 text-xs font-semibold text-[#142E2C]"
                   />
                 </div>
 
@@ -254,10 +321,10 @@ export default function CampusNetworkModal({
                         key={stId}
                         type="button"
                         onClick={() => setStatusFilter(stId)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition ${
+                        className={`px-3 py-1.5 rounded-full text-xs font-black whitespace-nowrap border transition ${
                           active
-                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                            : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                            ? 'bg-[#142E2C] text-white border-[#142E2C]'
+                            : 'bg-white/75 text-[#142E2C] border-[#142E2C]/15'
                         }`}
                       >
                         {stObj ? `${stObj.emoji} ${stObj.label}` : '🌐 Tümü'}
@@ -267,7 +334,6 @@ export default function CampusNetworkModal({
                 </div>
               </div>
 
-              {/* Student List */}
               <div className="space-y-2.5">
                 {filteredStudents.map((stu) => {
                   const st = getStatusMeta(stu.status);
@@ -276,47 +342,50 @@ export default function CampusNetworkModal({
                     <div
                       key={stu.id}
                       onClick={() => setSelectedStudent(stu)}
-                      className="cursor-pointer p-3.5 rounded-2xl bg-white hover:bg-indigo-50/40 border border-slate-200/80 hover:border-indigo-200 shadow-sm transition flex items-center justify-between gap-3"
+                      className="cursor-pointer p-3.5 rounded-3xl glass-tile hover:bg-white transition flex items-center justify-between gap-3"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div
                           className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${
-                            stu.avatarBg || 'from-indigo-500 to-sky-500'
-                          } text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-sm`}
+                            stu.avatarBg || 'from-[#142E2C] to-[#3A5A58]'
+                          } text-white font-black text-sm flex items-center justify-center shrink-0`}
                         >
                           {stu.initials}
                         </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-xs font-extrabold text-slate-900 truncate">
+                        <div className="min-w-0 space-y-0.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="text-xs font-black text-[#142E2C] truncate">
                               {stu.name}
                             </p>
                             {isMe && (
-                              <span className="px-1.5 py-0.5 rounded-md bg-indigo-100 text-indigo-700 text-[10px] font-bold">
+                              <span className="px-1.5 py-0.5 rounded-md bg-[#142E2C] text-white text-[9px] font-black">
                                 Sen
                               </span>
                             )}
+                            {stu.titleBadges?.map((b, i) => (
+                              <span
+                                key={b}
+                                className={`px-2 py-0.5 rounded-full text-[9px] font-black ${
+                                  i === 0
+                                    ? 'bg-[#FF8A3D] text-white'
+                                    : 'bg-[#142E2C] text-[#A9C6C1]'
+                                }`}
+                              >
+                                🏅 {b}
+                              </span>
+                            ))}
                           </div>
-                          <p className="text-[11px] text-slate-500 truncate">
+                          <p className="text-[11px] text-[#3A5A58] truncate">
                             {stu.department} • {stu.grade}
-                          </p>
-                          <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                            📍 {stu.locationNote || stu.email}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${st.badgeClass}`}
-                        >
-                          <span>{st.emoji}</span>
-                          <span>{st.label}</span>
-                        </span>
-                        <span className="text-[10px] font-semibold text-indigo-600">
-                          Profili Gör →
-                        </span>
-                      </div>
+                      <span
+                        className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-black border ${st.badgeClass}`}
+                      >
+                        {st.emoji} {st.label}
+                      </span>
                     </div>
                   );
                 })}

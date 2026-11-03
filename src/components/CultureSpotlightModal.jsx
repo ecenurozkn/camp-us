@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   BookOpen,
@@ -14,7 +14,7 @@ export default function CultureSpotlightModal({
   isOpen,
   onClose,
   cultureData,
-  initialActiveTab = 'overview', // 'overview' | 'book' | 'movie'
+  initialActiveTab = 'book',
   currentUser,
   onAddCultureReview,
 }) {
@@ -25,6 +25,10 @@ export default function CultureSpotlightModal({
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [submittedNotice, setSubmittedNotice] = useState('');
+
+  useEffect(() => {
+    setSelectedType(initialActiveTab === 'movie' ? 'movie' : 'book');
+  }, [initialActiveTab]);
 
   if (!isOpen) return null;
 
@@ -66,54 +70,53 @@ export default function CultureSpotlightModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/55 backdrop-blur-sm p-0 sm:p-4 animate-fadeIn">
-      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 max-h-[92vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0B1C1B]/65 backdrop-blur-md p-0 sm:p-4">
+      <div className="glass-card w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] border border-white/60 max-h-[92vh] flex flex-col overflow-hidden">
         {/* Top Modal Header */}
-        <div className="px-5 pt-5 pb-3.5 bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-600 text-white relative">
+        <div className="px-6 pt-5 pb-4 bg-gradient-to-r from-[#142E2C] via-[#1D3534] to-[#3A5A58] text-white relative">
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition"
+            className="absolute right-4 top-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition"
             aria-label="Kapat"
           >
             <X className="w-4 h-4" />
           </button>
 
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[11px] font-semibold mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FF8A3D] text-white text-[11px] font-black mb-1.5">
+            <Sparkles className="w-3.5 h-3.5" />
             <span>{cultureData.monthTitle}</span>
           </div>
-          <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">
-            Ayın Kitabı & Ayın Filmi Seçkisi
+          <h2 className="text-lg sm:text-xl font-black tracking-tight">
+            ABÜ Ayın Kitabı & Ayın Filmi Seçkisi
           </h2>
-          <p className="text-xs text-indigo-100 mt-0.5">
-            Okuduğun kitabı veya izlediğin filmi 5 üzerinden puanla, kampüs tartışmasına katıl!
+          <p className="text-xs text-[#A9C6C1] mt-0.5">
+            Okuduğun kitabı veya izlediğin filmi 5 üzerinden puanla, yorumunu bırak!
           </p>
 
-          {/* Switch Tabs: Ayın Kitabı vs Ayın Filmi */}
-          <div className="grid grid-cols-2 gap-2 mt-3.5 bg-slate-900/20 p-1 rounded-2xl">
+          <div className="grid grid-cols-2 gap-2 mt-3.5 bg-black/25 p-1 rounded-2xl">
             <button
               type="button"
               onClick={() => setSelectedType('book')}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition ${
+              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-black transition ${
                 selectedType === 'book'
-                  ? 'bg-white text-indigo-700 shadow-sm'
+                  ? 'bg-white text-[#142E2C] shadow-sm'
                   : 'text-white/85 hover:text-white'
               }`}
             >
-              <BookOpen className="w-4 h-4" />
+              <BookOpen className="w-4 h-4 text-[#FF8A3D]" />
               <span>Ayın Kitabı ({bookAvg} ★)</span>
             </button>
             <button
               type="button"
               onClick={() => setSelectedType('movie')}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition ${
+              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-black transition ${
                 selectedType === 'movie'
-                  ? 'bg-white text-rose-600 shadow-sm'
+                  ? 'bg-white text-[#142E2C] shadow-sm'
                   : 'text-white/85 hover:text-white'
               }`}
             >
-              <Film className="w-4 h-4" />
+              <Film className="w-4 h-4 text-[#FF8A3D]" />
               <span>Ayın Filmi ({movieAvg} ★)</span>
             </button>
           </div>
@@ -121,56 +124,20 @@ export default function CultureSpotlightModal({
 
         {/* Scrollable Content */}
         <div className="p-5 overflow-y-auto space-y-4 flex-1">
-          {/* Quick Dual Summary Pill if user wants to see both at a glance */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <div
-              onClick={() => setSelectedType('book')}
-              className={`cursor-pointer p-3 rounded-2xl border transition ${
-                selectedType === 'book'
-                  ? 'bg-indigo-50/80 border-indigo-300 ring-2 ring-indigo-500/15'
-                  : 'bg-slate-50 border-slate-200/80 opacity-75 hover:opacity-100'
-              }`}
-            >
-              <div className="flex items-center justify-between text-[11px] font-bold text-indigo-600 mb-0.5">
-                <span>📖 AYIN KİTABI</span>
-                <span className="text-amber-600">★ {bookAvg}</span>
-              </div>
-              <p className="text-xs font-extrabold text-slate-900 truncate">{book.title}</p>
-              <p className="text-[11px] text-slate-500 truncate">{book.creator}</p>
-            </div>
-
-            <div
-              onClick={() => setSelectedType('movie')}
-              className={`cursor-pointer p-3 rounded-2xl border transition ${
-                selectedType === 'movie'
-                  ? 'bg-rose-50/80 border-rose-300 ring-2 ring-rose-500/15'
-                  : 'bg-slate-50 border-slate-200/80 opacity-75 hover:opacity-100'
-              }`}
-            >
-              <div className="flex items-center justify-between text-[11px] font-bold text-rose-600 mb-0.5">
-                <span>🎬 AYIN FİLMİ</span>
-                <span className="text-amber-600">★ {movieAvg}</span>
-              </div>
-              <p className="text-xs font-extrabold text-slate-900 truncate">{movie.title}</p>
-              <p className="text-[11px] text-slate-500 truncate">{movie.originalTitle}</p>
-            </div>
-          </div>
-
-          {/* Active Item Hero Card */}
           <div
-            className={`rounded-3xl p-4 text-white bg-gradient-to-br ${activeItem.coverGradient} shadow-md relative overflow-hidden`}
+            className={`rounded-3xl p-4 text-white bg-gradient-to-br ${activeItem.coverGradient} shadow-md space-y-2.5`}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-[11px] font-bold mb-1.5">
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-black mb-1">
                   {activeItem.badgeText}
                 </span>
-                <h3 className="text-lg font-extrabold leading-snug">{activeItem.title}</h3>
-                <p className="text-xs text-white/90 font-medium">{activeItem.creator}</p>
-                <p className="text-[11px] text-white/75 mt-1">{activeItem.meta}</p>
+                <h3 className="text-lg font-black leading-snug">{activeItem.title}</h3>
+                <p className="text-xs text-white/90 font-semibold">{activeItem.creator}</p>
+                <p className="text-[11px] text-white/75 mt-0.5">{activeItem.meta}</p>
               </div>
-              <div className="bg-white/20 backdrop-blur-md rounded-2xl px-3 py-2 text-center shrink-0">
-                <div className="flex items-center justify-center gap-1 text-amber-300 font-extrabold text-base">
+              <div className="bg-black/25 backdrop-blur-md rounded-2xl px-3 py-2 text-center shrink-0">
+                <div className="flex items-center justify-center gap-1 text-amber-300 font-black text-base">
                   <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
                   <span>{activeAvg}</span>
                 </div>
@@ -180,11 +147,11 @@ export default function CultureSpotlightModal({
               </div>
             </div>
 
-            <p className="text-xs text-white/95 leading-relaxed mt-3 bg-black/15 p-3 rounded-2xl">
+            <p className="text-xs text-white/95 leading-relaxed bg-black/20 p-3 rounded-2xl">
               {activeItem.summary}
             </p>
 
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-200 mt-2.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-200">
               <Calendar className="w-3.5 h-3.5 shrink-0" />
               <span>{activeItem.discussionInfo}</span>
             </div>
@@ -193,23 +160,18 @@ export default function CultureSpotlightModal({
           {/* 5-Star Rating & Review Form */}
           <form
             onSubmit={handleSubmitReview}
-            className="bg-slate-50 rounded-3xl p-4 border border-slate-200/80 space-y-3"
+            className="glass-tile rounded-3xl p-4 space-y-3"
           >
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
-                <MessageSquarePlus className="w-4 h-4 text-indigo-600" />
-                <span>
-                  {selectedType === 'book'
-                    ? 'Kitabı Okudun mu? Puan Ver & Yorum Yaz'
-                    : 'Filmi İzledin mi? Puan Ver & Yorum Yaz'}
-                </span>
+              <h4 className="text-xs font-black text-[#142E2C] flex items-center gap-1.5">
+                <MessageSquarePlus className="w-4 h-4 text-[#FF8A3D]" />
+                <span>5 Üzerinden Puan Ver & Yorum Yaz</span>
               </h4>
-              <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
-                {rating} / 5 Yıldız
+              <span className="text-xs font-black text-white bg-[#FF8A3D] px-2.5 py-0.5 rounded-full">
+                {rating} / 5 ★
               </span>
             </div>
 
-            {/* Interactive 1-5 Star Selector */}
             <div className="flex items-center gap-1.5 py-1">
               {[1, 2, 3, 4, 5].map((starValue) => {
                 const filled = (hoverRating || rating) >= starValue;
@@ -220,15 +182,15 @@ export default function CultureSpotlightModal({
                     onMouseEnter={() => setHoverRating(starValue)}
                     onMouseLeave={() => setHoverRating(0)}
                     onClick={() => setRating(starValue)}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition ${
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-xl border text-xs font-black transition ${
                       filled
-                        ? 'bg-amber-50 border-amber-300 text-amber-600 shadow-sm'
+                        ? 'bg-[#142E2C] border-[#142E2C] text-[#FF8A3D] shadow-sm'
                         : 'bg-white border-slate-200 text-slate-400'
                     }`}
                   >
                     <Star
                       className={`w-4 h-4 ${
-                        filled ? 'fill-amber-400 text-amber-400' : 'text-slate-300'
+                        filled ? 'fill-[#FF8A3D] text-[#FF8A3D]' : 'text-slate-300'
                       }`}
                     />
                     <span>{starValue}</span>
@@ -241,16 +203,12 @@ export default function CultureSpotlightModal({
               rows={2}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder={
-                selectedType === 'book'
-                  ? `"${book.title}" hakkındaki düşüncelerini kampüsle paylaş...`
-                  : `"${movie.title}" filmi hakkındaki yorumunu yaz...`
-              }
-              className="w-full p-3 rounded-2xl bg-white border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              placeholder={`"${activeItem.title}" hakkındaki düşüncelerini ABÜ öğrencileriyle paylaş...`}
+              className="w-full p-3 rounded-2xl bg-white border border-[#142E2C]/15 text-xs text-[#142E2C]"
             />
 
             {submittedNotice && (
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900 bg-emerald-500/20 px-3 py-2 rounded-xl">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{submittedNotice}</span>
               </div>
@@ -258,65 +216,37 @@ export default function CultureSpotlightModal({
 
             <button
               type="submit"
-              className="w-full py-2.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition"
+              className="w-full py-2.5 px-4 rounded-2xl bg-[#FF8A3D] hover:bg-[#E66B1F] text-white font-black text-xs shadow-sm transition"
             >
               Puanı ({rating}/5 ★) ve Yorumu Paylaş
             </button>
           </form>
 
-          {/* Student Reviews List */}
-          <div className="space-y-2.5">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-              Öğrenci Değerlendirmeleri ({activeItem.reviews.length})
+          {/* Student Reviews */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-black uppercase tracking-wider text-[#3A5A58]">
+              ABÜ Öğrenci Yorumları ({activeItem.reviews.length})
             </h4>
-            <div className="space-y-2">
-              {activeItem.reviews.map((rev) => (
-                <div
-                  key={rev.id}
-                  className="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-sm space-y-1.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-slate-800">
-                        {rev.studentName}
-                      </span>
-                      <span className="text-[11px] text-slate-400 ml-1.5">
-                        • {rev.department}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-0.5 text-amber-400">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < rev.rating
-                              ? 'fill-amber-400 text-amber-400'
-                              : 'text-slate-200'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">{rev.comment}</p>
-                  <p className="text-[10px] text-slate-400">{rev.date}</p>
+            {activeItem.reviews.map((rev) => (
+              <div
+                key={rev.id}
+                className="p-3.5 rounded-2xl glass-tile space-y-1"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-[#142E2C]">
+                    {rev.studentName}{' '}
+                    <span className="font-semibold text-[11px] text-[#3A5A58]">
+                      • {rev.department}
+                    </span>
+                  </span>
+                  <span className="text-xs font-black text-[#FF8A3D]">
+                    {'★'.repeat(rev.rating)}
+                  </span>
                 </div>
-              ))}
-            </div>
+                <p className="text-xs text-[#1D3534] leading-relaxed">{rev.comment}</p>
+              </div>
+            ))}
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-[11px] text-slate-500">
-            Ana ekrandan her zaman tekrar açabilirsiniz
-          </span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition"
-          >
-            Ana Ekrana Dön
-          </button>
         </div>
       </div>
     </div>
